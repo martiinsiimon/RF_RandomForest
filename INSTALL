@@ -1,0 +1,17 @@
+Quick installation guide
+========================
+
+Dependecies
+-----------
+ * make
+ * g++
+ * opencv-2.4.6
+
+How to build?
+-------------
+ $ make
+
+How to run?
+-----------
+ $ make run
+

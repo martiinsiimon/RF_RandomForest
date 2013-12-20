@@ -1,0 +1,20 @@
+POV-semantic-segmentation
+=========================
+Computer vision - Object segmentation in images
+
+Who is author?
+----------------
+ * Martin Simon <xsimon14@stud.fit.vutbr.cz>
+
+What the project license?
+-------------------------
+See file LICENSE. If any part is taken from other source, it's mentined in file header
+
+How to build/run?
+-----------------
+See file INSTALL
+
+Is this project documented? Where?
+----------------------------------
+Take a look into `doc` directory
+
