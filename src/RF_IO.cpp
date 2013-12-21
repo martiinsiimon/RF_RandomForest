@@ -56,8 +56,23 @@ RF_DataSampleCont* RF_IO::readData()
     return new RF_DataSampleCont();
 }
 
-RF_RandomForest RF_IO::readModel()
+RF_RandomForest* RF_IO::readModel()
 {
     if (this->_modelFile.length() < 1)
         throw Exception();
+
+    RF_RandomForest * rf = new RF_RandomForest();
+
+    //parse input file
+}
+
+/**
+ * Write random forest model given in parameter into file also given in parameter.
+ *
+ * @param rf
+ * @param path 
+ */
+void RF_IO::writeModel(RF_RandomForest * rf, string path)
+{
+    //TODO write random_forest given in parameter
 }

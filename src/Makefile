@@ -7,12 +7,12 @@ EXE=RF_Utils
 CC=g++
 RM=rm -rf
 
-.PHONY: all clean run
+.PHONY: all clean run exe
 
-all: $(OBJ)
-	$(CC) $(FLAGS) $(LIBS) $(OBJ) -o $(EXE)
+all: $(OBJ) exe
+#	$(CC) $(FLAGS) $(LIBS) $(OBJ) -o $(EXE)
 
-#exe: $(EXE)
+exe: $(EXE)
 
 run:
 	./$(EXE)
@@ -24,10 +24,9 @@ clean:
 	$(CC) -o $@ $^ $(FLAGS) $(LIBS)
 
 #zavislosti
-
 RF_DataProb.o: RF_DataProb.cpp RF_DataProb.h
 RF_Tree.o: RF_Tree.cpp RF_Tree.h RF_DataProb.h
-RF_RandomForest.cpp: RF_RandomForest.cpp RF_RandomForest.h RF_DataSampleCont.h RF_Tree.h
+RF_RandomForest.o: RF_RandomForest.cpp RF_RandomForest.h RF_DataSampleCont.h RF_Tree.h
 RF_Utils.o: RF_Utils.cpp RF_Utils.h RF_Train.h RF_Test.h
 RF_Train.o: RF_Train.cpp RF_Train.h RF_IO.h RF_DataSampleCont.h RF_RandomForest.h
 RF_Test.o: RF_Test.cpp RF_Test.h
