@@ -19,11 +19,11 @@ public:
     RF_DataSampleCont(const RF_DataSampleCont& orig);
     virtual ~RF_DataSampleCont();
 
-    int addSample(RF_DataSample s);
+    void addSample(RF_DataSample* s);
     void generateAllChannels();
     void generateChannel(int);
 private:
-    vector<RF_DataSample> _data;
+    vector<RF_DataSample*> _data;
 };
 
 #endif	/* RF_DATASAMPLECONT_H */

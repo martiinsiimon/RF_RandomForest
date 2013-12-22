@@ -21,16 +21,14 @@ public:
     virtual ~RF_IO();
 
     void setDataFile(string f);
-    void setLabelFile(string f);
     void setModelFile(string f);
 
-    RF_DataSampleCont * readData();
-    RF_RandomForest readModel();
+    RF_DataSampleCont* readData();
+    RF_RandomForest* readModel();
 
-    void writeModel(RF_RandomForest rf);
+    void writeModel(RF_RandomForest * rf, string path);
 private:
     string _dataFile;
-    string _labelFile;
     string _modelFile;
 
 };

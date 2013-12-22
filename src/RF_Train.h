@@ -12,20 +12,15 @@
 #include "RF_DataSampleCont.h"
 #include "RF_RandomForest.h"
 
-/* Hardcoded constant. TOTO: make them user defined variables */
-#define RF_MAX_DEPTH 5
-#define RF_MAX_TREES 5
 
 using namespace std;
 
 class RF_Train {
 public:
     RF_Train();
-    RF_Train(const RF_Train& orig);
-    RF_Train(string dataFile, string labelFile, string modelFile);
+    RF_Train(string dataFile, string modelFile);
     virtual ~RF_Train();
     void setDataFile(string f);
-    void setLabelFile(string f);
     void setModelFile(string f);
 
     void prepareTraining(void);
@@ -40,10 +35,10 @@ private:
     /* Forest configuration */
     int _maxDepth;
     int _maxTrees;
+    int _n;
 
     /* Other attributes */
     string _dataFile;
-    string _labelFile;
     string _modelFile;
     bool _trained;
 
