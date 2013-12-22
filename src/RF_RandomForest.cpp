@@ -6,14 +6,17 @@
  */
 
 #include "RF_RandomForest.h"
-
+#include "RF_Utils.h"
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
+using namespace std;
 
 RF_RandomForest::RF_RandomForest()
 {
-}
-
-RF_RandomForest::RF_RandomForest(const RF_RandomForest& orig)
-{
+    this->_data = NULL;
+    this->_maxDepth = 0;
+    this->_treesCount = 0;
+    this->_n = 0;
 }
 
 RF_RandomForest::~RF_RandomForest()
@@ -22,6 +25,52 @@ RF_RandomForest::~RF_RandomForest()
 
 void RF_RandomForest::trainForest()
 {
+    if (this->_data == NULL || this->_maxDepth == 0 || this->_n == 0 || this->_treesCount == 0)
+    {
+        cerr << "Some of needed parameters are not set!" << endl;
+        return;
+    }
+
+    /* Re-set random seed */
+    srand(time(NULL));
+
+    /* For every tree in forest*/
+    for (int i = 0; i < this->_treesCount; i++)
+    {
+        /* Create tree */
+        RF_Tree* t = new RF_Tree();
+
+
+        /* Generate random dataset */
+        //TODO (N number of random rectangles in every original sample)
+
+        /* Generate random channel set */
+        vector<int> channels;
+        for (int j = 0; j < this->_n; j++)
+        {
+            int ch = rand() % T_LAST;
+            uint x;
+            for (x = 0; x < channels.size(); x++)
+            {
+                if (channels.at(x) == ch)
+                    break;
+            }
+            if (x < channels.size())
+            {
+                j--;
+                continue;
+            }
+            channels.push_back(ch);
+        }
+        t->setChannels(channels);
+
+        /* Train the tree */
+        t->train();
+
+        /* Put the tree into forest */
+        this->_trees.push_back(t);
+
+    }
     /*
      * generate this->treesCount of trees in this->_trees
      *
@@ -34,15 +83,20 @@ void RF_RandomForest::trainForest()
 
 void RF_RandomForest::setTreesCount(int n)
 {
-    cout << "DBG: RF_RandomForest::setTreesCount(" << n << ")" << endl;
+    this->_treesCount = n;
 }
 
 void RF_RandomForest::setMaxDepth(int n)
 {
-    cout << "DBG: RF_RandomForest::setMaxDepth(" << n << ")" << endl;
+    this->_maxDepth = n;
 }
 
 void RF_RandomForest::setData(RF_DataSampleCont * data)
 {
-    cout << "DBG: RF_RandomForest::setData(RF_DataSampleCont *)" << endl;
+    this->_data = data;
+}
+
+void RF_RandomForest::setN(int n)
+{
+    this->_n = n;
 }

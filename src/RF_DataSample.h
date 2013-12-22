@@ -9,7 +9,7 @@
 #define	RF_DATASAMPLE_H
 
 #include <opencv2/core/core.hpp>
-#include <vector>
+#include <map>
 
 using namespace std;
 using namespace cv;
@@ -20,13 +20,19 @@ public:
     RF_DataSample(const RF_DataSample& orig);
     virtual ~RF_DataSample();
 
-    void addChannel(Mat& m);
-    void generateChannel(int id);
-    void setLabel(Mat& m);
+    void addChannel(Mat m, int i);
+
+    void setLabel(Mat m);
     void setName(string s);
+
+    void generateChannel(int id);
+    void createGrayscaleChannel();
+    void createRedChannel();
+    void createGreenChannel();
+    void createBlueChannel();
 private:
     string _name;
-    vector<Mat> _channel;
+    map<int, Mat> _channel;
     Mat _label;
 };
 

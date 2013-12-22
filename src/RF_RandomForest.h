@@ -21,19 +21,20 @@ class RF_RandomForest {
 public:
 
     RF_RandomForest();
-    RF_RandomForest(const RF_RandomForest& orig);
     virtual ~RF_RandomForest();
 
     void setTreesCount(int n);
     void setMaxDepth(int n);
     void setData(RF_DataSampleCont * data);
+    void setN(int n);
 
     void trainForest();
 
 private:
-    int treesCount;
-    int maxDepth;
-    RF_DataSampleCont * data;
+    int _treesCount;
+    int _maxDepth;
+    int _n;
+    RF_DataSampleCont * _data;
     vector<RF_Tree *> _trees;
 };
 
