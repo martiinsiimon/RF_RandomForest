@@ -37,6 +37,8 @@ public:
 
     void generatePosteriori();
 
+    RF_DataProb* solveTree(RF_DataSample *ds);
+
     void clearDataset();
 
 private:

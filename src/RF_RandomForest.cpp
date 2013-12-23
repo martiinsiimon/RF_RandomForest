@@ -88,6 +88,10 @@ void RF_RandomForest::trainForest()
         cout << "Training tree: " << t->getId() << endl;
         t->train();
 
+        /* Generate posteriori probabilities */
+        cout << "Generating probabilities for tree: " << t->getId() << endl;
+        t->generatePosteriori();
+
         /* Put the tree into forest */
         this->_trees.push_back(t);
     }

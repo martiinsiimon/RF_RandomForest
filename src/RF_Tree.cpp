@@ -93,13 +93,13 @@ void RF_Tree::train()
 {
     if (this->_channels.size() == 0 || this->_dataset == NULL)
     {
-        cout << "ERROR: sem jsem se nikdy nemel dostat!" << endl;
+        //cout << "ERROR: sem jsem se nikdy nemel dostat!" << endl;
         return;
     }
 
     if (this->maximalDepth < 1)
     {
-        cout << "This is a leaf." << endl;
+        //cout << "This is a leaf." << endl;
         this->leaf = true;
         this->probabilities = new RF_DataProb();
         return;
@@ -146,7 +146,7 @@ void RF_Tree::train()
     }
     if (maxCh == -1)
     {
-        cout << "ChannelsCount: " << this->_channels.size() << endl;
+        //cout << "ChannelsCount: " << this->_channels.size() << endl;
         return;
     }
 
@@ -178,7 +178,7 @@ void RF_Tree::train()
         }
     }
 
-    cout << "Left count: " << leftDSC->samplesCount() << ", right count:" << rightDSC->samplesCount() << endl;
+    //cout << "Left count: " << leftDSC->samplesCount() << ", right count:" << rightDSC->samplesCount() << endl;
 
     /* Initialize both sub-trees */
     this->tLeft = new RF_Tree();
@@ -194,4 +194,37 @@ void RF_Tree::train()
     /* Start training of both sub-trees */
     this->tLeft->train();
     this->tRight->train();
+}
+
+void RF_Tree::generatePosteriori()
+{
+    int x = RF_REC_W / 2;
+    int y = RF_REC_H / 2;
+
+    for (int i = 0; i < this->_dataset->samplesCount(); i++)
+    {
+        RF_DataSample* ds = this->_dataset->getSample(i);
+        RF_Tree * tree = this;
+
+        /* Go through the whole tree */
+        while (!tree->isLeaf())
+        {
+            if ((int) ds->getChannel(tree->func->getChannel()).at<uchar>(x, y) < tree->func->getThreshold())
+            {
+                tree = tree->tLeft;
+            }
+            else
+            {
+                tree = tree->tRight;
+            }
+        }
+
+        /* In tree is stored end leaf */
+        tree->probabilities->increasePosteriori(ds->getLabel().at<uchar>(x, y));
+    }
+}
+
+RF_DataProb* RF_Tree::solveTree(RF_DataSample *ds)
+{
+
 }

@@ -23,6 +23,7 @@ public:
     void addChannel(Mat m, int i);
 
     void setLabel(Mat m);
+    Mat getLabel();
     void setName(string s);
     string getName();
     Mat getChannel(int i);

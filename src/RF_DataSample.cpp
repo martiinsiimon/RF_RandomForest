@@ -48,6 +48,11 @@ void RF_DataSample::setLabel(Mat m)
     this->_label = m;
 }
 
+Mat RF_DataSample::getLabel()
+{
+    return this->_label;
+}
+
 void RF_DataSample::setName(string s)
 {
     this->_name = s;

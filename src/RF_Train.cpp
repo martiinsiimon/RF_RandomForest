@@ -85,21 +85,10 @@ void RF_Train::trainForest()
     this->_forest = rf;
 }
 
-//void RF_Train::trainTree(void)
-//{
-//    cout << "DBG: trainTree" << endl;
-/*
- * every node starts as leaf
- * jestli neni dosazena maximalni hloubka a mezi daty k trenovani je dostatecna diverzita
- * najdi channel, kde je nejvetsi diverzita (max - min)
- * najdi stredni hodnotu [(max - min)/2 + min]
- * zapis do uzlu
- */
-//}
-
 void RF_Train::exportModel(void)
 {
     cout << "DBG: exportModel" << endl;
+    //TODO call IO and store model into file
 }
 
 void RF_Train::printResults(void)
