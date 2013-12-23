@@ -21,6 +21,11 @@ RF_RandomForest::RF_RandomForest()
 
 RF_RandomForest::~RF_RandomForest()
 {
+    for (uint i = 0; i < this->_trees.size(); i++)
+    {
+        this->_trees.at(i)->clearDataset();
+        delete this->_trees.at(i);
+    }
 }
 
 void RF_RandomForest::trainForest()
@@ -39,16 +44,30 @@ void RF_RandomForest::trainForest()
     {
         /* Create tree */
         RF_Tree* t = new RF_Tree();
-
+        t->setId(i);
 
         /* Generate random dataset */
-        //TODO (N number of random rectangles in every original sample)
+        RF_DataSampleCont * sdc = new RF_DataSampleCont();
+        for (int s = 0; s < this->_data->samplesCount(); s++)
+        {
+            RF_DataSample * tmp = this->_data->getSample(s);
+            int w = tmp->getWidth();
+            int h = tmp->getHeight();
+
+            for (int j = 0; j < this->_n; j++)
+            {
+                int lx = rand() % (w - this->_n);
+                int ly = rand() % (h - this->_n);
+                sdc->addSample(tmp->getSubsample(lx, ly, lx + this->_n, ly + this->_n));
+            }
+        }
+        t->setDataset(sdc);
 
         /* Generate random channel set */
         vector<int> channels;
-        for (int j = 0; j < this->_n; j++)
+        for (int j = 0; j < this->_n;)
         {
-            int ch = rand() % T_LAST;
+            int ch = (rand() % (T_CHANNEL_LAST - 1)) + 1;
             uint x;
             for (x = 0; x < channels.size(); x++)
             {
@@ -57,28 +76,21 @@ void RF_RandomForest::trainForest()
             }
             if (x < channels.size())
             {
-                j--;
                 continue;
             }
             channels.push_back(ch);
+            j++;
         }
         t->setChannels(channels);
+        t->setMaximalDepth(this->_maxDepth);
 
         /* Train the tree */
+        cout << "Training tree: " << t->getId() << endl;
         t->train();
 
         /* Put the tree into forest */
         this->_trees.push_back(t);
-
     }
-    /*
-     * generate this->treesCount of trees in this->_trees
-     *
-     * for every tree in this->_tree
-     * generate random dataset (N number of random rectangles in every original sample)
-     * generate random set of channels
-     * call tree->trainTree()
-     */
 }
 
 void RF_RandomForest::setTreesCount(int n)

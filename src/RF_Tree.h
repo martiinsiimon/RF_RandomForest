@@ -10,6 +10,9 @@
 
 #include <vector>
 #include <opencv2/core/core.hpp>
+#include "RF_DataSampleCont.h"
+#include "RF_NodeFunc.h"
+#include "RF_DataProb.h"
 
 using namespace std;
 using namespace cv;
@@ -17,20 +20,37 @@ using namespace cv;
 class RF_Tree {
 public:
     RF_Tree();
-    RF_Tree(const RF_Tree& orig);
     virtual ~RF_Tree();
 
     void train();
 
-    void setDataset(vector<Mat> d);
+    void setDataset(RF_DataSampleCont* d);
     void setChannels(vector<int> c);
 
     string dumpTree();
+    void setId(int id);
+    int getId();
+    void setMaximalDepth(int i);
+    int getMaximalDepth();
+
+    bool isLeaf();
+
+    void generatePosteriori();
+
+    void clearDataset();
 
 private:
     int _treeId;
 
-    vector<Mat> _dataset;
+    bool leaf;
+    RF_NodeFunc * func;
+    RF_Tree* tLeft;
+    RF_Tree* tRight;
+
+    RF_DataProb* probabilities;
+
+    int maximalDepth;
+    RF_DataSampleCont * _dataset;
     vector<int> _channels;
 };
 

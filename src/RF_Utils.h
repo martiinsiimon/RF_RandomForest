@@ -12,17 +12,17 @@
 #define RF_MAX_DEPTH 5
 #define RF_MAX_TREES 5
 #define RF_N 3
-#define RF_REC_W 10
-#define RF_REC_H 10
+#define RF_REC_W 5
+#define RF_REC_H 5
 
 enum T_CHANNELS
 {
-    T_RGB = 0,
-    T_GRAY,
-    T_R,
-    T_G,
-    T_B,
-    T_LAST //sentinel
+    T_CHANNEL_RGB = 0,
+    T_CHANNEL_GRAY,
+    T_CHANNEL_R,
+    T_CHANNEL_G,
+    T_CHANNEL_B,
+    T_CHANNEL_LAST //sentinel
 };
 
 #endif	/* RF_UTILS_H */

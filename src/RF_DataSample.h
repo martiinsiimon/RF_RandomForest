@@ -24,8 +24,14 @@ public:
 
     void setLabel(Mat m);
     void setName(string s);
+    string getName();
+    Mat getChannel(int i);
+    RF_DataSample* getSubsample(int lx, int ly, int hx, int hy);
 
-    void generateChannel(int id);
+    int getWidth();
+    int getHeight();
+
+    void generateChannel(int i);
     void createGrayscaleChannel();
     void createRedChannel();
     void createGreenChannel();

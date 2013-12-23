@@ -29,6 +29,21 @@ RF_DataSampleCont::~RF_DataSampleCont()
     this->_data.clear();
 }
 
+int RF_DataSampleCont::samplesCount()
+{
+    return this->_data.size();
+}
+
+RF_DataSample* RF_DataSampleCont::getSample(int id)
+{
+    return this->_data.at(id);
+}
+
+vector<RF_DataSample*>* RF_DataSampleCont::getSamples()
+{
+    return &(this->_data);
+}
+
 /**
  * Add given data sample into internal vector.
  * @param s RF_DataSample to add into vector
@@ -44,7 +59,7 @@ void RF_DataSampleCont::addSample(RF_DataSample* s)
 
 void RF_DataSampleCont::generateAllChannels()
 {
-    for (int i = T_RGB; i != T_LAST; i++)
+    for (int i = T_CHANNEL_RGB; i != T_CHANNEL_LAST; i++)
     {
         this->generateChannel(i);
     }
