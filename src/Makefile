@@ -24,8 +24,8 @@ clean:
 	$(CC) -o $@ $^ $(FLAGS) $(LIBS)
 
 #zavislosti
-RF_DataProb.o: RF_DataProb.cpp RF_DataProb.h
-RF_Tree.o: RF_Tree.cpp RF_Tree.h RF_DataProb.h RF_DataSampleCont.h RF_NodeFunc.h
+RF_DataProb.o: RF_DataProb.cpp RF_DataProb.h RF_Utils.h
+RF_Tree.o: RF_Tree.cpp RF_Tree.h RF_DataProb.h RF_DataSampleCont.h RF_NodeFunc.h RF_Utils.h
 RF_RandomForest.o: RF_RandomForest.cpp RF_RandomForest.h RF_DataSampleCont.h RF_Tree.h
 RF_Utils.o: RF_Utils.cpp RF_Utils.h RF_Train.h RF_Test.h
 RF_Train.o: RF_Train.cpp RF_Train.h RF_IO.h RF_DataSampleCont.h RF_RandomForest.h

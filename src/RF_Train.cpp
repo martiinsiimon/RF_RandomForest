@@ -88,7 +88,10 @@ void RF_Train::trainForest()
 void RF_Train::exportModel(void)
 {
     cout << "DBG: exportModel" << endl;
-    //TODO call IO and store model into file
+    RF_IO * io = new RF_IO();
+    io->setModelFile(this->_modelFile);
+    io->writeModel(this->_forest);
+    delete io;
 }
 
 void RF_Train::printResults(void)
@@ -111,8 +114,12 @@ string RF_Train::getResults(void)
     else
     {
         resultDump += "NOT TRAINED\n";
-        resultDump += "Maximal depth: " + this->_maxDepth + '\n';
-        resultDump += "Maximal trees count: " + this->_maxTrees + '\n';
+        resultDump += "Maximal depth: ";
+        resultDump += this->_maxDepth;
+        resultDump += '\n';
+        resultDump += "Maximal trees count: ";
+        resultDump += this->_maxTrees;
+        resultDump += '\n';
     }
 
     return resultDump;

@@ -102,7 +102,12 @@ RF_RandomForest* RF_IO::readModel()
  * @param rf
  * @param path
  */
-void RF_IO::writeModel(RF_RandomForest * rf, string path)
+void RF_IO::writeModel(RF_RandomForest * rf)
 {
-    //TODO write random_forest given in parameter
+    if (this->_modelFile.length() < 1)
+        throw Exception();
+
+    ofstream outData(this->_modelFile.c_str());
+    outData << rf->dumpForest();
+    outData.close();
 }

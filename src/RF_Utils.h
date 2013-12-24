@@ -8,6 +8,9 @@
 #ifndef RF_UTILS_H
 #define	RF_UTILS_H
 
+#include <string>
+#include <sstream>
+
 /* Hardcoded constant. TODO: make them user defined variables */
 #define RF_MAX_DEPTH 5
 #define RF_MAX_TREES 5
@@ -24,6 +27,14 @@ enum T_CHANNELS
     T_CHANNEL_B,
     T_CHANNEL_LAST //sentinel
 };
+
+template <typename T>
+string Number2String(T i)
+{
+    ostringstream ss;
+    ss << i;
+    return ss.str();
+}
 
 #endif	/* RF_UTILS_H */
 

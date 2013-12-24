@@ -29,7 +29,9 @@ public:
     void setN(int n);
 
     void trainForest();
+    void validateTree(RF_Tree* t);
 
+    string dumpForest();
 private:
     int _treesCount;
     int _maxDepth;

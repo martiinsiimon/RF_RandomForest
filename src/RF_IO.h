@@ -26,7 +26,7 @@ public:
     RF_DataSampleCont* readData();
     RF_RandomForest* readModel();
 
-    void writeModel(RF_RandomForest * rf, string path);
+    void writeModel(RF_RandomForest * rf);
 private:
     string _dataFile;
     string _modelFile;

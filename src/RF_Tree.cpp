@@ -6,7 +6,9 @@
  */
 
 #include <vector>
+#include <queue>
 #include <iostream>
+#include <string>
 
 #include "RF_Tree.h"
 #include "RF_Utils.h"
@@ -61,7 +63,38 @@ int RF_Tree::getId()
 
 string RF_Tree::dumpTree()
 {
-    return "Tree " + this->_treeId;
+    queue<RF_Tree*> todo;
+    todo.push(this);
+    string result = "";
+
+    while (!todo.empty())
+    {
+        RF_Tree* tmp = todo.front();
+        todo.pop();
+
+        if (tmp->isLeaf())
+        {
+            /* The node is a leaf */
+            result += Number2String(tmp->getId());
+            result += ":";
+            result += tmp->getProbabilities()->dumpProbabilities();
+        }
+        else
+        {
+            /* The node is a node */
+            result += Number2String(tmp->getId());
+            result += "(";
+            result += Number2String(tmp->getLeft()->getId());
+            result += ",";
+            result += Number2String(tmp->getRight()->getId());
+            result += ") ";
+
+            todo.push(tmp->getLeft());
+            todo.push(tmp->getRight());
+        }
+    }
+
+    return result;
 }
 
 void RF_Tree::setChannels(vector<int> c)
@@ -72,6 +105,11 @@ void RF_Tree::setChannels(vector<int> c)
 void RF_Tree::setDataset(RF_DataSampleCont * d)
 {
     this->_dataset = d;
+}
+
+RF_DataProb* RF_Tree::getProbabilities()
+{
+    return this->probabilities;
 }
 
 void RF_Tree::setMaximalDepth(int i)
@@ -93,13 +131,11 @@ void RF_Tree::train()
 {
     if (this->_channels.size() == 0 || this->_dataset == NULL)
     {
-        //cout << "ERROR: sem jsem se nikdy nemel dostat!" << endl;
         return;
     }
 
     if (this->maximalDepth < 1)
     {
-        //cout << "This is a leaf." << endl;
         this->leaf = true;
         this->probabilities = new RF_DataProb();
         return;
@@ -112,13 +148,13 @@ void RF_Tree::train()
     this->leaf = false;
     int x = RF_REC_W / 2;
     int y = RF_REC_H / 2;
+
     /* In every channel determine what's the maximal difference */
     int maximal = 0;
     int minimal = 255;
     int maxLen = 0;
     int maxCh = -1;
 
-    //cout << "Channel Size: " << this->_channels.size() << endl;
     for (uint ch = 0; ch < this->_channels.size(); ch++)
     {
         int tmpMax = 0;
@@ -127,14 +163,12 @@ void RF_Tree::train()
         for (int i = 0; i < dsc->samplesCount(); i++)
         {
             Mat tmpSample = dsc->getSample(i)->getChannel(this->_channels.at(ch));
-            //cout << "Channel " << this->_channels.at(ch) << " - " << (int) tmpSample.at<uchar>(x, y) << endl;
+
             if ((int) tmpSample.at<uchar>(x, y) > tmpMax)
                 tmpMax = (int) tmpSample.at<uchar>(x, y);
             if ((int) tmpSample.at<uchar>(x, y) < tmpMin)
                 tmpMin = (int) tmpSample.at<uchar>(x, y);
-            //break;
         }
-        //cout << " Channel: " << this->_channels.at(ch) << ", min: " << tmpMin << ", max: " << tmpMax << endl;
 
         if (tmpMax - tmpMin >= maxLen)
         {
@@ -146,7 +180,6 @@ void RF_Tree::train()
     }
     if (maxCh == -1)
     {
-        //cout << "ChannelsCount: " << this->_channels.size() << endl;
         return;
     }
 
@@ -178,7 +211,6 @@ void RF_Tree::train()
         }
     }
 
-    //cout << "Left count: " << leftDSC->samplesCount() << ", right count:" << rightDSC->samplesCount() << endl;
 
     /* Initialize both sub-trees */
     this->tLeft = new RF_Tree();
@@ -220,8 +252,29 @@ void RF_Tree::generatePosteriori()
         }
 
         /* In tree is stored end leaf */
-        tree->probabilities->increasePosteriori(ds->getLabel().at<uchar>(x, y));
+        Vec3b color = ds->getLabel().at<Vec3b>(x, y);
+        tree->probabilities->increasePosteriori(color[0] + color[1] * 256 + color[2] * 256 * 256);
     }
+}
+
+RF_Tree* RF_Tree::getLeft()
+{
+    return this->tLeft;
+}
+
+RF_Tree* RF_Tree::getRight()
+{
+    return this->tRight;
+}
+
+void RF_Tree::normalizeProbs()
+{
+    this->probabilities->normalize();
+}
+
+RF_NodeFunc* RF_Tree::getFunc()
+{
+    return this->func;
 }
 
 RF_DataProb* RF_Tree::solveTree(RF_DataSample *ds)

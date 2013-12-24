@@ -9,6 +9,8 @@
 #include "RF_Utils.h"
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
+#include <queue>
+#include <string>
 using namespace std;
 
 RF_RandomForest::RF_RandomForest()
@@ -44,7 +46,7 @@ void RF_RandomForest::trainForest()
     {
         /* Create tree */
         RF_Tree* t = new RF_Tree();
-        t->setId(i);
+        //t->setId(0);
 
         /* Generate random dataset */
         RF_DataSampleCont * sdc = new RF_DataSampleCont();
@@ -82,15 +84,18 @@ void RF_RandomForest::trainForest()
             j++;
         }
         t->setChannels(channels);
-        t->setMaximalDepth(this->_maxDepth);
+        t->setMaximalDepth(this->_maxDepth - 1);
 
         /* Train the tree */
-        cout << "Training tree: " << t->getId() << endl;
+        cout << "Training tree: " << i << endl;
         t->train();
 
         /* Generate posteriori probabilities */
-        cout << "Generating probabilities for tree: " << t->getId() << endl;
+        cout << "Generating probabilities for tree: " << i << endl;
         t->generatePosteriori();
+
+        /* Validate tree */
+        this->validateTree(t);
 
         /* Put the tree into forest */
         this->_trees.push_back(t);
@@ -112,7 +117,81 @@ void RF_RandomForest::setData(RF_DataSampleCont * data)
     this->_data = data;
 }
 
+void RF_RandomForest::validateTree(RF_Tree* t)
+{
+    queue<RF_Tree*> todo;
+
+    int id = 0;
+    t->setId(id++);
+
+    todo.push(t);
+
+    while (!todo.empty())
+    {
+        RF_Tree* tmp = todo.front();
+        todo.pop();
+
+        cout << "Validating tree " << tmp->getId() << endl;
+
+        if (tmp->isLeaf())
+        {
+            tmp->normalizeProbs();
+            if (tmp->getLeft() != NULL)
+            {
+                cerr << "Tree is marked as a leaf and has left sub-tree!" << endl;
+                delete tmp->getLeft();
+            }
+            if (tmp->getRight() != NULL)
+            {
+                cerr << "Tree is marked as a leaf and has right sub-tree!" << endl;
+                delete tmp->getRight();
+            }
+            if (tmp->getFunc() != NULL)
+            {
+                cerr << "Tree is marked as a leaf and has a node function set!" << endl;
+                delete tmp->getFunc();
+            }
+        }
+        else
+        {
+            if (tmp->getLeft() == NULL)
+            {
+                cerr << "Tree is marked as a node and has no left sub-tree!" << endl;
+                return;
+            }
+            if (tmp->getRight() == NULL)
+            {
+                cerr << "Tree is marked as a node and has no right sub-tree!" << endl;
+                return;
+            }
+            if (tmp->getFunc() == NULL)
+            {
+                cerr << "Tree is marked as a node and has no node function set!" << endl;
+                return;
+            }
+
+            tmp->getLeft()->setId(id++);
+            tmp->getRight()->setId(id++);
+
+            todo.push(tmp->getLeft());
+            todo.push(tmp->getRight());
+        }
+    }
+}
+
 void RF_RandomForest::setN(int n)
 {
     this->_n = n;
+}
+
+string RF_RandomForest::dumpForest()
+{
+    string result = "";
+    for (vector<RF_Tree*>::iterator it = this->_trees.begin(); it != this->_trees.end(); it++)
+    {
+        result += "#Tree \n";
+        result += (*it)->dumpTree();
+        result += '\n';
+    }
+    return result;
 }

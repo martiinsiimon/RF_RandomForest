@@ -10,12 +10,17 @@
 
 #include <vector>
 #include <opencv2/core/core.hpp>
+#include <sstream>
 #include "RF_DataSampleCont.h"
 #include "RF_NodeFunc.h"
 #include "RF_DataProb.h"
+#include "RF_Utils.h"
 
 using namespace std;
 using namespace cv;
+
+
+
 
 class RF_Tree {
 public:
@@ -39,8 +44,17 @@ public:
 
     RF_DataProb* solveTree(RF_DataSample *ds);
 
+    RF_DataProb* getProbabilities();
+
     void clearDataset();
 
+    void validate();
+
+    RF_Tree* getLeft();
+    RF_Tree* getRight();
+    void normalizeProbs();
+
+    RF_NodeFunc* getFunc();
 private:
     int _treeId;
 
