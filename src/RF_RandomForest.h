@@ -34,6 +34,8 @@ public:
     string dumpForest();
 
     void addTree(RF_Tree* t);
+
+    RF_DataSample * solveSample(RF_DataSample* ds);
 private:
     int _treesCount;
     int _maxDepth;

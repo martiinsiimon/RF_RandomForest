@@ -7,7 +7,9 @@
 
 #include "RF_Test.h"
 #include <iostream>
+#include <opencv2/highgui/highgui.hpp>
 
+using namespace cv;
 using namespace std;
 
 RF_Test::RF_Test()
@@ -16,6 +18,7 @@ RF_Test::RF_Test()
     this->dataFile = "";
 
     this->forest = NULL;
+    this->_data = NULL;
 }
 
 RF_Test::RF_Test(string _dataPath, string _modelPath)
@@ -24,12 +27,15 @@ RF_Test::RF_Test(string _dataPath, string _modelPath)
     this->dataFile = _dataPath;
 
     this->forest = NULL;
+    this->_data = NULL;
 }
 
 RF_Test::~RF_Test()
 {
     if (this->forest != NULL)
         delete this->forest;
+    if (this->_data != NULL)
+        delete this->_data;
 }
 
 void RF_Test::setDataFile(string f)
@@ -44,7 +50,7 @@ void RF_Test::setModelFile(string f)
 
 void RF_Test::loadModel()
 {
-    cout << "DBG: load model from file" << endl;
+    cout << "Loading model from file" << endl;
     if (this->modelFile.empty())
         return;
     RF_IO * io = new RF_IO();
@@ -57,8 +63,39 @@ void RF_Test::loadModel()
 
 void RF_Test::solveData()
 {
-    cout << "DBG: solve model " << endl;
-    //TODO add solve for every point in model
+    /* Load data if there are any */
+    if (this->dataFile.empty() || this->forest == NULL)
+        return;
+
+    RF_IO* io = new RF_IO();
+    io->setDataFile(this->dataFile);
+
+    this->_data = io->readData();
+
+    delete io;
+
+    /* Generate all channels */
+    this->_data->generateAllChannels();
+
+    RF_DataSample * tmpS;
+    float sum = 0;
+    float similarity;
+    /* Label every sample in dataset and get results */
+    for (vector<RF_DataSample*>::iterator it = this->_data->getSamples()->begin(); it != this->_data->getSamples()->end(); it++)
+    {
+        cout << "Testing " << (*it)->getName() << endl;
+        tmpS = this->forest->solveSample((*it));
+        //cout << "dbg: 1" << endl;
+        similarity = (*it)->getSimilarityOflabels(tmpS);
+        sum += similarity;
+        namedWindow("Display window", CV_WINDOW_AUTOSIZE); // Create a window for display.
+        imshow("Display window", tmpS->getLabel());
+        waitKey(0);
+        delete tmpS;
+        cout << "\t Success in " << similarity << "%" << endl;
+    }
+
+    cout << "Total success: " << sum / this->_data->samplesCount() << "%" << endl;
 }
 
 void RF_Test::printResults()

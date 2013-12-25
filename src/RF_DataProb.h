@@ -21,13 +21,16 @@ public:
     virtual ~RF_DataProb();
 
     float getPosteriori(uint i);
-    int getMaximal();
+    uint getMaximal();
     void increasePosteriori(uint i);
     void normalize();
 
     string dumpProbabilities();
 
     void addValues(uint key, float val);
+    void clear();
+    void sum(RF_DataProb * p);
+    void product(RF_DataProb * p);
 private:
 
     map<uint, float> probabilities;

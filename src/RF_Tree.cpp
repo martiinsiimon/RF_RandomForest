@@ -136,6 +136,7 @@ void RF_Tree::train()
 {
     if (this->_channels.size() == 0 || this->_dataset == NULL)
     {
+        cerr << "No dataset or no channel!" << endl;
         return;
     }
 
@@ -163,7 +164,7 @@ void RF_Tree::train()
     for (uint ch = 0; ch < this->_channels.size(); ch++)
     {
         int tmpMax = 0;
-        int tmpMin = 256;
+        int tmpMin = 0;
 
         for (int i = 0; i < dsc->samplesCount(); i++)
         {
@@ -185,6 +186,7 @@ void RF_Tree::train()
     }
     if (maxCh == -1)
     {
+        cerr << "no maximal channel" << endl;
         return;
     }
 
@@ -246,7 +248,7 @@ void RF_Tree::generatePosteriori()
         /* Go through the whole tree */
         while (!tree->isLeaf())
         {
-            if ((int) ds->getChannel(tree->func->getChannel()).at<uchar>(x, y) < tree->func->getThreshold())
+            if ((int) ds->getChannel(tree->func->getChannel()).at<uchar>(y, x) < tree->func->getThreshold())
             {
                 tree = tree->tLeft;
             }
@@ -257,8 +259,9 @@ void RF_Tree::generatePosteriori()
         }
 
         /* In tree is stored end leaf */
-        Vec3b color = ds->getLabel().at<Vec3b>(x, y);
-        tree->probabilities->increasePosteriori(color[0] + color[1] * 256 + color[2] * 256 * 256);
+        Vec3b color = ds->getLabel().at<Vec3b>(y, x);
+        //tree->probabilities->increasePosteriori(color[0] + color[1] * 256 + color[2] * 256 * 256);
+        tree->probabilities->increasePosteriori(color[0] + (color[1] << 8) + (color[2] << 16));
         //TODO optimize using shifts
     }
 }
@@ -285,10 +288,27 @@ RF_NodeFunc* RF_Tree::getFunc()
 
 RF_DataProb* RF_Tree::solveTree(RF_DataSample *ds)
 {
-    RF_DataProb* result = new RF_DataProb();
+    //RF_DataProb* result = new RF_DataProb();
+    //cout << "DBG: a" << endl;
+    RF_Tree * tree = this;
+    while (!tree->isLeaf())
+    {
+        //cout << "Tree id:" << tree->getId() << endl;
+        if (ds->getChannel(tree->getFunc()->getChannel()).at<uchar>(0, 0) < tree->getFunc()->getThreshold())
+        {
+            //left
+            tree = tree->tLeft;
+        }
+        else
+        {
+            //right
+            tree = tree->tRight;
+        }
+    }
 
-
-    return result;
+    //cout << "DBG: c" << endl;
+    /* Given tree is a leaf */
+    return tree->getProbabilities();
 }
 
 void RF_Tree::addSubtree(bool leaf, int id, int left, int right, RF_NodeFunc *f, RF_DataProb* p)

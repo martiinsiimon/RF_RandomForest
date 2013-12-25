@@ -7,6 +7,7 @@
 
 #include "RF_RandomForest.h"
 #include "RF_Utils.h"
+#include "RF_DataProb.h"
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
 #include <queue>
@@ -57,7 +58,7 @@ void RF_RandomForest::trainForest()
             int w = tmp->getWidth();
             int h = tmp->getHeight();
 
-            for (int j = 0; j < this->_n; j++)
+            for (int j = 0; j < this->_n * 20; j++)
             {
                 int lx = rand() % (w - this->_n);
                 int ly = rand() % (h - this->_n);
@@ -198,4 +199,49 @@ string RF_RandomForest::dumpForest()
 void RF_RandomForest::addTree(RF_Tree* t)
 {
     this->_trees.push_back(t);
+}
+
+RF_DataSample * RF_RandomForest::solveSample(RF_DataSample* ds)
+{
+    RF_DataProb * probs = new RF_DataProb();
+    RF_DataSample* labels = new RF_DataSample();
+    Mat labMat(ds->getLabel().rows, ds->getLabel().cols, CV_8UC3, Scalar(0, 0, 0));
+    RF_DataSample* tmpS;
+    RF_DataProb *tmpP;
+    //cout << "DBG: 2" << endl;
+
+    for (int y = 0; y < ds->getHeight(); y++)
+    {
+        for (int x = 0; x < ds->getWidth(); x++)
+        {
+            //cout << "DBG: xx" << endl;
+            probs->clear();
+            //cout << "DBG: 3" << endl;
+            tmpS = ds->getSubsample(x, y, x, y);
+            //cout << "DBG: 4" << endl;
+            for (vector<RF_Tree*>::iterator it = this->_trees.begin(); it != this->_trees.end(); it++)
+            {
+                //cout << "DBG: 4a" << endl;
+                tmpP = (*it)->solveTree(tmpS);
+                //cout << "DBG: 4b" << endl;
+                probs->sum(tmpP);
+                //cout << "DBG: 4c" << endl;
+                //delete tmpP;
+                break;
+            }
+            //cout << "DBG: 5" << endl;
+            //probs->normalize();
+            //cout << "DBG: 6" << endl;
+            uint max = probs->getMaximal();
+            //cout << "DBG: 6 " << max << endl;
+            labMat.at<Vec3b>(y, x) = Vec3b((max & 255), (max >> 8) & 255, (max >> 16) & 255);
+            //cout << "DBG: 7" << endl;
+        }
+    }
+    //cout << "DBG: 7" << endl;
+    labels->setLabel(labMat);
+
+    delete probs;
+
+    return labels;
 }

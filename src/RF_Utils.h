@@ -12,8 +12,8 @@
 #include <sstream>
 
 /* Hardcoded constant. TODO: make them user defined variables */
-#define RF_MAX_DEPTH 5
-#define RF_MAX_TREES 5
+#define RF_MAX_DEPTH 8
+#define RF_MAX_TREES 8
 #define RF_N 3
 #define RF_REC_W 5
 #define RF_REC_H 5

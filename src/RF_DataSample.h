@@ -37,6 +37,8 @@ public:
     void createRedChannel();
     void createGreenChannel();
     void createBlueChannel();
+
+    float getSimilarityOflabels(RF_DataSample* ds);
 private:
     string _name;
     map<int, Mat> _channel;

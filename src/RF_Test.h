@@ -32,6 +32,7 @@ private:
     string dataFile;
 
     RF_RandomForest* forest;
+    RF_DataSampleCont * _data;
 };
 
 #endif	/* RF_TEST_H */

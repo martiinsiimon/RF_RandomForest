@@ -82,3 +82,53 @@ void RF_DataProb::addValues(uint key, float val)
 {
     this->probabilities.insert(pair<uint, float>(key, val));
 }
+
+void RF_DataProb::clear()
+{
+    this->probabilities.clear();
+}
+
+void RF_DataProb::sum(RF_DataProb* p)
+{
+    for (map<uint, float>::iterator it = p->probabilities.begin(); it != p->probabilities.end(); it++)
+    {
+        try
+        {
+            this->probabilities.at(it->first) += it->second;
+        }
+        catch (out_of_range)
+        {
+            this->probabilities.insert(pair<uint, float>(it->first, it->second));
+        }
+    }
+}
+
+void RF_DataProb::product(RF_DataProb* p)
+{
+    for (map<uint, float>::iterator it = p->probabilities.begin(); it != p->probabilities.end(); it++)
+    {
+        try
+        {
+            this->probabilities.at(it->first) *= it->second;
+        }
+        catch (out_of_range)
+        {
+            this->probabilities.insert(pair<uint, float>(it->first, it->second));
+        }
+    }
+}
+
+uint RF_DataProb::getMaximal()
+{
+    uint max = 0;
+    float maxVal = 0.0f;
+    for (map<uint, float>::iterator it = this->probabilities.begin(); it != this->probabilities.end(); it++)
+    {
+        if (it->second > maxVal)
+        {
+            max = it->first;
+            maxVal = it->second;
+        }
+    }
+    return max;
+}
