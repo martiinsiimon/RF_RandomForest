@@ -8,6 +8,7 @@
 #include "RF_IO.h"
 #include "RF_Utils.h"
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -85,13 +86,75 @@ RF_DataSampleCont* RF_IO::readData()
 
 RF_RandomForest* RF_IO::readModel()
 {
-    if (this->_modelFile.length() < 1)
+    if (this->_modelFile.empty())
         throw Exception();
 
     RF_RandomForest * rf = new RF_RandomForest();
 
-    //parse input file
+    ifstream inModel(this->_modelFile.c_str());
+    //int i = 0;
+    for (string line; getline(inModel, line);)
+    {
+        if (line.find("#") == 0)
+        {
+            continue;
+        }
 
+        RF_Tree * tree = new RF_Tree();
+        tree->setId(0);
+
+        stringstream lineStream(line);
+        for (string node; getline(lineStream, node, ' ');)
+        {
+            int leftBracket = node.find("(");
+            string nodeNr = node.substr(0, leftBracket);
+            string symbol = node.substr(leftBracket + 1, 1);
+            int rightBracket = node.find(")", leftBracket);
+
+            if (symbol == ":")
+            {
+                /* This is a leaf */
+                string probsString = node.substr(leftBracket + 2, rightBracket - leftBracket - 2);
+                RF_DataProb* p = new RF_DataProb();
+                stringstream probs(probsString);
+                for (string prob; getline(probs, prob, ',');)
+                {
+                    uint key = String2Number<uint>(prob.substr(0, prob.find("=")));
+                    float value = String2Number<float>(prob.substr(prob.find("=") + 1, prob.length() - prob.find("=")));
+                    p->addValues(key, value);
+                }
+                tree->addSubtree(true, String2Number<int>(nodeNr), 0, 0, NULL, p);
+            }
+            else
+            {
+                /* This is a sub-tree */
+                int comma = node.find(",", leftBracket);
+                string leftTree = node.substr(leftBracket + 1, comma - leftBracket - 1);
+                string rightTree = node.substr(comma + 1, rightBracket - comma - 1);
+                leftBracket = node.find("(", rightBracket);
+                rightBracket = node.find(")", leftBracket);
+                int comma1 = node.find(",", leftBracket);
+                string funcType = node.substr(leftBracket + 1, comma1 - leftBracket - 1);
+
+                RF_NodeFunc *f = new RF_NodeFunc();
+                if (String2Number<int>(funcType) == RF_FUNC_ABSTEST)
+                {
+                    int comma2 = node.find(",", comma1 + 1);
+                    string funcChannel = node.substr(comma1 + 1, comma2 - comma1 - 1);
+                    string funcThreshold = node.substr(comma2 + 1, rightBracket - comma2 - 1);
+                    f->setType(String2Number<int>(funcType));
+                    f->setChannel(String2Number<int>(funcChannel));
+                    f->setThreshold(String2Number<int>(funcThreshold));
+                }
+
+                tree->addSubtree(false, String2Number<int>(nodeNr), String2Number<int>(leftTree), String2Number<int>(rightTree), f, NULL);
+            }
+
+
+        }
+        rf->validateTree(tree);
+        rf->addTree(tree);
+    }
 
     return rf;
 }

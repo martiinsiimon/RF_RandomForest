@@ -72,9 +72,22 @@ int main(int argc, char** argv)
     }
     else if (argc == 4 && string(argv[1]) == "test")
     {
+        //TODO catch exceptions
         /* Evaluate prediction rate */
-        //TODO call RF_Test with input data - evaluating mode
-        cout << "DBG: test" << endl;
+        RF_Test *model = new RF_Test(string(argv[2]), string(argv[3]));
+
+        /* Load model from file*/
+        model->loadModel();
+
+        /* Solve data and store results */
+        model->solveData();
+
+        /* Print results of evaluation  */
+        model->printResults();
+
+
+        delete model;
+        /* Exit correctly */
         return 0;
     }
     else

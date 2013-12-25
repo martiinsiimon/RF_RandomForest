@@ -23,6 +23,7 @@ RF_RandomForest::RF_RandomForest()
 
 RF_RandomForest::~RF_RandomForest()
 {
+
     for (uint i = 0; i < this->_trees.size(); i++)
     {
         this->_trees.at(i)->clearDataset();
@@ -131,8 +132,6 @@ void RF_RandomForest::validateTree(RF_Tree* t)
         RF_Tree* tmp = todo.front();
         todo.pop();
 
-        cout << "Validating tree " << tmp->getId() << endl;
-
         if (tmp->isLeaf())
         {
             tmp->normalizeProbs();
@@ -194,4 +193,9 @@ string RF_RandomForest::dumpForest()
         result += '\n';
     }
     return result;
+}
+
+void RF_RandomForest::addTree(RF_Tree* t)
+{
+    this->_trees.push_back(t);
 }

@@ -61,7 +61,7 @@ void RF_DataProb::normalize()
 
 string RF_DataProb::dumpProbabilities()
 {
-    string result = "(";
+    string result = "";
 
     for (map<uint, float>::iterator it = this->probabilities.begin(); it != this->probabilities.end();)
     {
@@ -74,7 +74,11 @@ string RF_DataProb::dumpProbabilities()
             result += ",";
         }
     }
-    result += ") ";
 
     return result;
+}
+
+void RF_DataProb::addValues(uint key, float val)
+{
+    this->probabilities.insert(pair<uint, float>(key, val));
 }

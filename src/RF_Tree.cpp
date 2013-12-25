@@ -30,8 +30,6 @@ RF_Tree::RF_Tree()
 
 RF_Tree::~RF_Tree()
 {
-
-
     if (this->probabilities != NULL)
         delete this->probabilities;
 
@@ -76,8 +74,9 @@ string RF_Tree::dumpTree()
         {
             /* The node is a leaf */
             result += Number2String(tmp->getId());
-            result += ":";
+            result += "(:";
             result += tmp->getProbabilities()->dumpProbabilities();
+            result += ") ";
         }
         else
         {
@@ -87,6 +86,12 @@ string RF_Tree::dumpTree()
             result += Number2String(tmp->getLeft()->getId());
             result += ",";
             result += Number2String(tmp->getRight()->getId());
+            result += ")(";
+            result += Number2String(tmp->getFunc()->getType());
+            result += ",";
+            result += Number2String(tmp->getFunc()->getChannel());
+            result += ",";
+            result += Number2String(tmp->getFunc()->getThreshold());
             result += ") ";
 
             todo.push(tmp->getLeft());
@@ -254,6 +259,7 @@ void RF_Tree::generatePosteriori()
         /* In tree is stored end leaf */
         Vec3b color = ds->getLabel().at<Vec3b>(x, y);
         tree->probabilities->increasePosteriori(color[0] + color[1] * 256 + color[2] * 256 * 256);
+        //TODO optimize using shifts
     }
 }
 
@@ -279,5 +285,60 @@ RF_NodeFunc* RF_Tree::getFunc()
 
 RF_DataProb* RF_Tree::solveTree(RF_DataSample *ds)
 {
+    RF_DataProb* result = new RF_DataProb();
 
+
+    return result;
+}
+
+void RF_Tree::addSubtree(bool leaf, int id, int left, int right, RF_NodeFunc *f, RF_DataProb* p)
+{
+    queue<RF_Tree*> todo;
+
+    todo.push(this);
+
+    while (!todo.empty())
+    {
+        RF_Tree* tmp = todo.front();
+        todo.pop();
+
+        if (tmp->getId() == id)
+        {
+            if (leaf)
+            {
+                tmp->addLeaf(p);
+                return;
+            }
+            else
+            {
+                tmp->addNode(left, right, f);
+                return;
+            }
+        }
+        else
+        {
+            if (tmp->tLeft != NULL)
+                todo.push(tmp->tLeft);
+            if (tmp->tRight != NULL)
+                todo.push(tmp->tRight);
+        }
+    }
+}
+
+void RF_Tree::addNode(int left, int right, RF_NodeFunc* f)
+{
+    this->leaf = false;
+    this->tLeft = new RF_Tree();
+    this->tLeft->setId(left);
+    this->tRight = new RF_Tree();
+    this->tRight->setId(right);
+    this->func = f;
+}
+
+void RF_Tree::addLeaf(RF_DataProb* p)
+{
+    this->leaf = true;
+    this->tLeft = NULL;
+    this->tRight = NULL;
+    this->probabilities = p;
 }

@@ -26,6 +26,8 @@ public:
     void normalize();
 
     string dumpProbabilities();
+
+    void addValues(uint key, float val);
 private:
 
     map<uint, float> probabilities;

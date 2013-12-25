@@ -36,5 +36,13 @@ string Number2String(T i)
     return ss.str();
 }
 
+template <typename T>
+inline T String2Number(const string& st)
+{
+    T t;
+    istringstream(st) >> t;
+    return t;
+}
+
 #endif	/* RF_UTILS_H */
 

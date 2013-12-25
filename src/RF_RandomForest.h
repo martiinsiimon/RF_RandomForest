@@ -32,6 +32,8 @@ public:
     void validateTree(RF_Tree* t);
 
     string dumpForest();
+
+    void addTree(RF_Tree* t);
 private:
     int _treesCount;
     int _maxDepth;

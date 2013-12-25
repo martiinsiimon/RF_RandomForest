@@ -55,6 +55,11 @@ public:
     void normalizeProbs();
 
     RF_NodeFunc* getFunc();
+
+
+    void addSubtree(bool leaf, int id, int left, int right, RF_NodeFunc *f, RF_DataProb* p);
+    void addNode(int left, int right, RF_NodeFunc* f);
+    void addLeaf(RF_DataProb* p);
 private:
     int _treeId;
 
