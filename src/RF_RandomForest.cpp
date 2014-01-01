@@ -1,8 +1,6 @@
 /*
  * File:   RF_RandomForest.cpp
- * Author: martin
- *
- * Created on 29. říjen 2013, 16:59
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #include "RF_RandomForest.h"
@@ -12,6 +10,7 @@
 #include <time.h>       /* time */
 #include <queue>
 #include <string>
+
 using namespace std;
 
 RF_RandomForest::RF_RandomForest()
@@ -205,40 +204,28 @@ RF_DataSample * RF_RandomForest::solveSample(RF_DataSample* ds)
 {
     RF_DataProb * probs = new RF_DataProb();
     RF_DataSample* labels = new RF_DataSample();
-    Mat labMat(ds->getLabel().rows, ds->getLabel().cols, CV_8UC3, Scalar(0, 0, 0));
+    //Mat labMat(ds->getLabel().rows, ds->getLabel().cols, CV_8UC3);
+    Mat labMat(ds->getLabel().size(), CV_8UC3);
     RF_DataSample* tmpS;
     RF_DataProb *tmpP;
-    //cout << "DBG: 2" << endl;
 
     for (int y = 0; y < ds->getHeight(); y++)
     {
         for (int x = 0; x < ds->getWidth(); x++)
         {
-            //cout << "DBG: xx" << endl;
             probs->clear();
-            //cout << "DBG: 3" << endl;
             tmpS = ds->getSubsample(x, y, x, y);
-            //cout << "DBG: 4" << endl;
             for (vector<RF_Tree*>::iterator it = this->_trees.begin(); it != this->_trees.end(); it++)
             {
-                //cout << "DBG: 4a" << endl;
                 tmpP = (*it)->solveTree(tmpS);
-                //cout << "DBG: 4b" << endl;
-                probs->sum(tmpP);
-                //cout << "DBG: 4c" << endl;
-                //delete tmpP;
-                break;
+                probs->product(tmpP);
+                //break;
             }
-            //cout << "DBG: 5" << endl;
-            //probs->normalize();
-            //cout << "DBG: 6" << endl;
+            probs->normalize();
             uint max = probs->getMaximal();
-            //cout << "DBG: 6 " << max << endl;
             labMat.at<Vec3b>(y, x) = Vec3b((max & 255), (max >> 8) & 255, (max >> 16) & 255);
-            //cout << "DBG: 7" << endl;
         }
     }
-    //cout << "DBG: 7" << endl;
     labels->setLabel(labMat);
 
     delete probs;

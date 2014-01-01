@@ -1,8 +1,6 @@
 /*
  * File:   RF_Test.h
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:42
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #ifndef RF_TEST_H
@@ -33,6 +31,8 @@ private:
 
     RF_RandomForest* forest;
     RF_DataSampleCont * _data;
+
+    double sum;
 };
 
 #endif	/* RF_TEST_H */

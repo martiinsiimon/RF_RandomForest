@@ -1,8 +1,6 @@
 /*
  * File:   RF_DataSampleCont.cpp
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:51
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #include "RF_DataSampleCont.h"
@@ -12,11 +10,6 @@
 using namespace std;
 
 RF_DataSampleCont::RF_DataSampleCont()
-{
-    //this->_data = new vector<RF_DataSample*>();
-}
-
-RF_DataSampleCont::RF_DataSampleCont(const RF_DataSampleCont& orig)
 {
 }
 

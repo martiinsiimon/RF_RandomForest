@@ -1,8 +1,6 @@
 /*
  * File:   RF_Tree.h
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:38
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #ifndef RF_TREE_H
@@ -18,9 +16,6 @@
 
 using namespace std;
 using namespace cv;
-
-
-
 
 class RF_Tree {
 public:

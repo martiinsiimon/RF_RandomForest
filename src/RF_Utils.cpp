@@ -1,8 +1,6 @@
 /*
  * File:   RF_Utils.cpp
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:51
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #include <iostream>

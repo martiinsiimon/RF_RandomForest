@@ -1,8 +1,6 @@
 /*
  * File:   RF_Test.cpp
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:42
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #include "RF_Test.h"
@@ -19,6 +17,8 @@ RF_Test::RF_Test()
 
     this->forest = NULL;
     this->_data = NULL;
+
+    this->sum = 0.0;
 }
 
 RF_Test::RF_Test(string _dataPath, string _modelPath)
@@ -28,6 +28,8 @@ RF_Test::RF_Test(string _dataPath, string _modelPath)
 
     this->forest = NULL;
     this->_data = NULL;
+
+    this->sum = 0.0;
 }
 
 RF_Test::~RF_Test()
@@ -78,27 +80,24 @@ void RF_Test::solveData()
     this->_data->generateAllChannels();
 
     RF_DataSample * tmpS;
-    float sum = 0;
     float similarity;
+
     /* Label every sample in dataset and get results */
     for (vector<RF_DataSample*>::iterator it = this->_data->getSamples()->begin(); it != this->_data->getSamples()->end(); it++)
     {
         cout << "Testing " << (*it)->getName() << endl;
+
         tmpS = this->forest->solveSample((*it));
-        //cout << "dbg: 1" << endl;
+
         similarity = (*it)->getSimilarityOflabels(tmpS);
-        sum += similarity;
-        namedWindow("Display window", CV_WINDOW_AUTOSIZE); // Create a window for display.
-        imshow("Display window", tmpS->getLabel());
-        waitKey(0);
+        this->sum += similarity;
+
         delete tmpS;
         cout << "\t Success in " << similarity << "%" << endl;
     }
-
-    cout << "Total success: " << sum / this->_data->samplesCount() << "%" << endl;
 }
 
 void RF_Test::printResults()
 {
-    cout << "DBG: print results" << endl;
+    cout << "Total success: " << this->sum / this->_data->samplesCount() << "%" << endl;
 }

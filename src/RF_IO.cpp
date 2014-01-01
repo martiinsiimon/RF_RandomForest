@@ -1,8 +1,6 @@
 /*
  * File:   RF_IO.cpp
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:43
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #include "RF_IO.h"
@@ -25,12 +23,6 @@ RF_IO::RF_IO()
     this->_modelFile = "";
 }
 
-RF_IO::RF_IO(const RF_IO& orig)
-{
-    this->_dataFile = orig._dataFile;
-    this->_modelFile = orig._modelFile;
-}
-
 RF_IO::~RF_IO()
 {
 }
@@ -50,7 +42,6 @@ RF_DataSampleCont* RF_IO::readData()
 {
     if (this->_dataFile.length() < 1)
         throw Exception();
-    cout << "DBG: readData" << endl;
 
     RF_DataSampleCont * cont = new RF_DataSampleCont();
 
@@ -71,15 +62,12 @@ RF_DataSampleCont* RF_IO::readData()
         string labelPath = line.substr(line.find(";") + 1, line.length() - line.find(";") - 1);
 
         sample->setName(imgPath);
-        sample->addChannel(imread(imgPath), T_CHANNEL_RGB);
-        sample->setLabel(imread(labelPath));
+        sample->addChannel(imread(imgPath, CV_LOAD_IMAGE_COLOR), T_CHANNEL_RGB);
+        sample->setLabel(imread(labelPath, CV_LOAD_IMAGE_COLOR));
 
         cont->addSample(sample);
     }
     inData.close();
-
-
-
 
     return cont;
 }
@@ -92,7 +80,7 @@ RF_RandomForest* RF_IO::readModel()
     RF_RandomForest * rf = new RF_RandomForest();
 
     ifstream inModel(this->_modelFile.c_str());
-    //int i = 0;
+
     for (string line; getline(inModel, line);)
     {
         if (line.find("#") == 0)

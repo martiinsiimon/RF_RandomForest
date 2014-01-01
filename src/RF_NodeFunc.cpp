@@ -1,17 +1,11 @@
 /*
  * File:   RF_NodeFunc.cpp
- * Author: martin
- *
- * Created on 23. prosinec 2013, 11:30
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #include "RF_NodeFunc.h"
 
 RF_NodeFunc::RF_NodeFunc()
-{
-}
-
-RF_NodeFunc::RF_NodeFunc(const RF_NodeFunc& orig)
 {
 }
 

@@ -1,8 +1,6 @@
 /*
  * File:   RF_DataSampleCont.h
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:51
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #ifndef RF_DATASAMPLECONT_H
@@ -16,7 +14,6 @@ using namespace std;
 class RF_DataSampleCont {
 public:
     RF_DataSampleCont();
-    RF_DataSampleCont(const RF_DataSampleCont& orig);
     virtual ~RF_DataSampleCont();
 
     int samplesCount();

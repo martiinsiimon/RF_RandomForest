@@ -1,8 +1,6 @@
 /*
  * File:   RF_Tree.cpp
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:38
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #include <vector>
@@ -170,10 +168,10 @@ void RF_Tree::train()
         {
             Mat tmpSample = dsc->getSample(i)->getChannel(this->_channels.at(ch));
 
-            if ((int) tmpSample.at<uchar>(x, y) > tmpMax)
-                tmpMax = (int) tmpSample.at<uchar>(x, y);
-            if ((int) tmpSample.at<uchar>(x, y) < tmpMin)
-                tmpMin = (int) tmpSample.at<uchar>(x, y);
+            if ((int) tmpSample.at<uchar>(y, x) > tmpMax)
+                tmpMax = (int) tmpSample.at<uchar>(y, x);
+            if ((int) tmpSample.at<uchar>(y, x) < tmpMin)
+                tmpMin = (int) tmpSample.at<uchar>(y, x);
         }
 
         if (tmpMax - tmpMin >= maxLen)
@@ -199,16 +197,14 @@ void RF_Tree::train()
     this->func->setChannel(channel);
     this->func->setThreshold(threshold);
 
-
     /* Split the dataset according to maximal divergency in corect channel */
     RF_DataSampleCont* rightDSC = new RF_DataSampleCont();
     RF_DataSampleCont* leftDSC = new RF_DataSampleCont();
 
-
     for (int i = 0; i < dsc->samplesCount(); i++)
     {
         Mat tmpSample = dsc->getSample(i)->getChannel(channel);
-        if ((int) tmpSample.at<uchar>(x, y) < threshold)
+        if ((int) tmpSample.at<uchar>(y, x) < threshold)
         {
             leftDSC->addSample(dsc->getSample(i));
         }
@@ -217,7 +213,6 @@ void RF_Tree::train()
             rightDSC->addSample(dsc->getSample(i));
         }
     }
-
 
     /* Initialize both sub-trees */
     this->tLeft = new RF_Tree();
@@ -260,9 +255,7 @@ void RF_Tree::generatePosteriori()
 
         /* In tree is stored end leaf */
         Vec3b color = ds->getLabel().at<Vec3b>(y, x);
-        //tree->probabilities->increasePosteriori(color[0] + color[1] * 256 + color[2] * 256 * 256);
         tree->probabilities->increasePosteriori(color[0] + (color[1] << 8) + (color[2] << 16));
-        //TODO optimize using shifts
     }
 }
 
@@ -288,13 +281,10 @@ RF_NodeFunc* RF_Tree::getFunc()
 
 RF_DataProb* RF_Tree::solveTree(RF_DataSample *ds)
 {
-    //RF_DataProb* result = new RF_DataProb();
-    //cout << "DBG: a" << endl;
     RF_Tree * tree = this;
     while (!tree->isLeaf())
     {
-        //cout << "Tree id:" << tree->getId() << endl;
-        if (ds->getChannel(tree->getFunc()->getChannel()).at<uchar>(0, 0) < tree->getFunc()->getThreshold())
+        if ((int) ds->getChannel(tree->getFunc()->getChannel()).at<uchar>(0, 0) < tree->getFunc()->getThreshold())
         {
             //left
             tree = tree->tLeft;
@@ -305,9 +295,6 @@ RF_DataProb* RF_Tree::solveTree(RF_DataSample *ds)
             tree = tree->tRight;
         }
     }
-
-    //cout << "DBG: c" << endl;
-    /* Given tree is a leaf */
     return tree->getProbabilities();
 }
 

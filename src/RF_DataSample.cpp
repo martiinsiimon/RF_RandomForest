@@ -1,8 +1,6 @@
 /*
  * File:   RF_DataSample.cpp
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:48
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #include "RF_DataSample.h"
@@ -15,13 +13,8 @@ RF_DataSample::RF_DataSample()
     this->_name = "";
 }
 
-RF_DataSample::RF_DataSample(const RF_DataSample& orig)
-{
-}
-
 RF_DataSample::~RF_DataSample()
 {
-    //this->_channel.clear();
 }
 
 void RF_DataSample::addChannel(Mat m, int i)
@@ -34,11 +27,21 @@ Mat RF_DataSample::getChannel(int i)
     return this->_channel.at(i);
 }
 
+/**
+ * Return number of rows of label object
+ *
+ * @return Height (rows) of label object
+ */
 int RF_DataSample::getHeight()
 {
     return this->_label.rows;
 }
 
+/**
+ * Return number of cols of label object
+ *
+ * @return Width (cols) of label object
+ */
 int RF_DataSample::getWidth()
 {
     return this->_label.cols;
@@ -71,7 +74,7 @@ RF_DataSample* RF_DataSample::getSubsample(int lx, int ly, int hx, int hy)
     ds->setName(this->_name);
     if (lx == hx && ly == hy)
     {
-        ds->setLabel(Mat(this->_label.at<Vec3b>(lx, ly)));
+        ds->setLabel(Mat(this->_label.at<Vec3b>(ly, lx)));
     }
     else
     {
@@ -80,9 +83,11 @@ RF_DataSample* RF_DataSample::getSubsample(int lx, int ly, int hx, int hy)
 
     for (map<int, Mat>::iterator it = this->_channel.begin(); it != this->_channel.end(); it++)
     {
+        if (it->first == T_CHANNEL_RGB)
+            continue;
         if (lx == hx && ly == hy)
         {
-            ds->addChannel(Mat(it->second.at<Vec3b>(lx, ly)), it->first);
+            ds->addChannel(Mat(1, 1, CV_8UC1, Scalar(it->second.at<uchar>(ly, lx))), it->first);
         }
         else
         {
@@ -128,7 +133,9 @@ void RF_DataSample::createRedChannel()
 
     split(this->_channel[T_CHANNEL_RGB], channel); //order BGR
 
-    this->_channel[T_CHANNEL_R] = channel[2];
+    Mat ch;
+    channel[0].convertTo(ch, CV_8UC1);
+    this->_channel[T_CHANNEL_R] = ch;
 }
 
 void RF_DataSample::createGreenChannel()
@@ -137,7 +144,9 @@ void RF_DataSample::createGreenChannel()
 
     split(this->_channel[T_CHANNEL_RGB], channel); //order BGR
 
-    this->_channel[T_CHANNEL_G] = channel[1];
+    Mat ch;
+    channel[1].convertTo(ch, CV_8UC1);
+    this->_channel[T_CHANNEL_G] = ch;
 }
 
 void RF_DataSample::createBlueChannel()
@@ -146,7 +155,9 @@ void RF_DataSample::createBlueChannel()
 
     split(this->_channel[T_CHANNEL_RGB], channel); //order BGR
 
-    this->_channel[T_CHANNEL_B] = channel[0];
+    Mat ch;
+    channel[2].convertTo(ch, CV_8UC1);
+    this->_channel[T_CHANNEL_B] = ch;
 }
 
 float RF_DataSample::getSimilarityOflabels(RF_DataSample* ds)
@@ -167,7 +178,6 @@ float RF_DataSample::getSimilarityOflabels(RF_DataSample* ds)
             if (this->_label.at<Vec3b>(y, x) == Vec3b(0, 0, 0))
                 continue;
 
-            //cout << this->_label.at<Vec3b>(y, x) << " and " << ds->_label.at<Vec3b>(y, x) << endl;
             if (this->_label.at<Vec3b>(y, x) == ds->_label.at<Vec3b>(y, x))
             {
                 sum++;
@@ -175,7 +185,6 @@ float RF_DataSample::getSimilarityOflabels(RF_DataSample* ds)
             count++;
         }
     }
-    cout << count << "/" << sum << "=" << (float) sum / (float) count << endl;
 
     return (float) sum / (float) count * 100;
 }

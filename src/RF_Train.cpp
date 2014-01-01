@@ -1,8 +1,6 @@
 /*
  * File:   RF_Train.cpp
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:39
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #include "RF_Train.h"
@@ -22,8 +20,6 @@ RF_Train::RF_Train()
 
 RF_Train::RF_Train(string dataFile, string modelFile)
 {
-    cout << "DBG: constructor" << endl;
-
     this->_dataFile = dataFile;
     this->_modelFile = modelFile;
 
@@ -39,7 +35,6 @@ RF_Train::RF_Train(string dataFile, string modelFile)
 
 RF_Train::~RF_Train()
 {
-
     if (this->_forest != NULL)
         delete this->_forest;
     if (this->_data != NULL)
@@ -58,7 +53,6 @@ void RF_Train::setModelFile(string f)
 
 void RF_Train::prepareTraining(void)
 {
-    cout << "DBG: prepareTraining" << endl;
     RF_IO * io = new RF_IO();
     io->setDataFile(this->_dataFile);
 
@@ -72,7 +66,7 @@ void RF_Train::prepareTraining(void)
 
 void RF_Train::trainForest()
 {
-    cout << "DBG: trainForest" << endl;
+    cout << "Training random forest started" << endl;
 
     RF_RandomForest* rf = new RF_RandomForest();
     rf->setData(this->_data);
@@ -87,7 +81,7 @@ void RF_Train::trainForest()
 
 void RF_Train::exportModel(void)
 {
-    cout << "DBG: exportModel" << endl;
+    cout << "Exporting model" << endl;
     RF_IO * io = new RF_IO();
     io->setModelFile(this->_modelFile);
     io->writeModel(this->_forest);

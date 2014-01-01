@@ -1,8 +1,6 @@
 /*
  * File:   RF_Utils.h
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:51
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #ifndef RF_UTILS_H
@@ -17,6 +15,8 @@
 #define RF_N 3
 #define RF_REC_W 5
 #define RF_REC_H 5
+
+using namespace std;
 
 enum T_CHANNELS
 {

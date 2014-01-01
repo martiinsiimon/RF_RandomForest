@@ -1,8 +1,6 @@
 /*
  * File:   RF_NodeFunc.h
- * Author: martin
- *
- * Created on 23. prosinec 2013, 11:30
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #ifndef RF_NODEFUNC_H
@@ -18,7 +16,6 @@ class RF_NodeFunc
 {
 public:
     RF_NodeFunc();
-    RF_NodeFunc(const RF_NodeFunc& orig);
     virtual ~RF_NodeFunc();
 
     int getType();

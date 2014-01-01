@@ -1,8 +1,6 @@
 /*
  * File:   RF_RandomForest.h
- * Author: Martin Simon
- *
- * Created on 29. říjen 2013, 16:59
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #ifndef RF_RANDOMFOREST_H

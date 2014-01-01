@@ -1,8 +1,6 @@
 /*
  * File:   RF_DataSample.h
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:48
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #ifndef RF_DATASAMPLE_H
@@ -17,7 +15,6 @@ using namespace cv;
 class RF_DataSample {
 public:
     RF_DataSample();
-    RF_DataSample(const RF_DataSample& orig);
     virtual ~RF_DataSample();
 
     void addChannel(Mat m, int i);

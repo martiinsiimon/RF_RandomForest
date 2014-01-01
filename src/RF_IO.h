@@ -1,8 +1,6 @@
 /*
  * File:   RF_IO.h
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:43
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #ifndef RF_IO_H
@@ -17,7 +15,6 @@ using namespace std;
 class RF_IO {
 public:
     RF_IO();
-    RF_IO(const RF_IO& orig);
     virtual ~RF_IO();
 
     void setDataFile(string f);

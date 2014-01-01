@@ -1,8 +1,6 @@
 /*
  * File:   RF_DataProb.cpp
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:39
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #include <stdexcept>
@@ -17,10 +15,6 @@ RF_DataProb::RF_DataProb()
 {
 }
 
-RF_DataProb::RF_DataProb(const RF_DataProb& orig)
-{
-}
-
 RF_DataProb::~RF_DataProb()
 {
 }
@@ -30,13 +24,10 @@ void RF_DataProb::increasePosteriori(uint i)
     try
     {
         this->probabilities.at(i) = this->probabilities.at(i) + 1;
-        //cout << "key " << (int) i << " exists: value " << this->probabilities.at(i) << endl;
-
     }
     catch (out_of_range)
     {
         this->probabilities.insert(pair<uint, float>(i, 1.0f));
-        //cout << "out of range key " << (int) i << endl;
     }
 }
 
@@ -44,7 +35,7 @@ void RF_DataProb::normalize()
 {
     float sum = 0.0f;
 
-    /* Delet black - unlabeled */
+    /* Delete black - unlabeled */
     this->probabilities.erase(0);
 
     for (map<uint, float>::iterator it = this->probabilities.begin(); it != this->probabilities.end(); it++)
@@ -54,7 +45,6 @@ void RF_DataProb::normalize()
 
     for (map<uint, float>::iterator it = this->probabilities.begin(); it != this->probabilities.end(); it++)
     {
-        //sum += it->second;
         this->probabilities.at(it->first) /= sum;
     }
 }

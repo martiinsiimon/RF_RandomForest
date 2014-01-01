@@ -1,8 +1,6 @@
 /*
  * File:   RF_Train.h
- * Author: martin
- *
- * Created on 9. listopad 2013, 14:39
+ * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
 #ifndef RF_TRAIN_H
