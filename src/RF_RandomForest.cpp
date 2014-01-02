@@ -13,6 +13,9 @@
 
 using namespace std;
 
+/**
+ * Class constructor.
+ */
 RF_RandomForest::RF_RandomForest()
 {
     this->_data = NULL;
@@ -21,6 +24,9 @@ RF_RandomForest::RF_RandomForest()
     this->_n = 0;
 }
 
+/**
+ * Class destructor.
+ */
 RF_RandomForest::~RF_RandomForest()
 {
 
@@ -218,7 +224,7 @@ RF_DataSample * RF_RandomForest::solveSample(RF_DataSample* ds)
             for (vector<RF_Tree*>::iterator it = this->_trees.begin(); it != this->_trees.end(); it++)
             {
                 tmpP = (*it)->solveTree(tmpS);
-                probs->product(tmpP);
+                probs->sum(tmpP);
                 //break;
             }
             probs->normalize();

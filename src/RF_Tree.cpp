@@ -14,6 +14,9 @@
 using namespace std;
 using namespace cv;
 
+/**
+ * Class constructor.
+ */
 RF_Tree::RF_Tree()
 {
     this->_treeId = -1;
@@ -25,7 +28,9 @@ RF_Tree::RF_Tree()
     this->func = NULL;
 }
 
-
+/**
+ * Class destructor.
+ */
 RF_Tree::~RF_Tree()
 {
     if (this->probabilities != NULL)

@@ -13,5 +13,6 @@ How to build?
 
 How to run?
 -----------
- $ make run
+Take a look at RF help
+ $ cd src && ./RF_Utils -h
 

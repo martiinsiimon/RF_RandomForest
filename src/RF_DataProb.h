@@ -24,10 +24,9 @@ public:
 
     string dumpProbabilities();
 
-    void addValues(uint key, float val);
+    void addValue(uint key, float val);
     void clear();
     void sum(RF_DataProb * p);
-    void product(RF_DataProb * p);
 private:
 
     map<uint, float> probabilities;

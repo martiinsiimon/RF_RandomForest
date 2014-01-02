@@ -15,7 +15,7 @@ using namespace std;
 using namespace cv;
 
 /**
- * Constructor of RF_IO
+ * Class constructor.
  */
 RF_IO::RF_IO()
 {
@@ -23,6 +23,9 @@ RF_IO::RF_IO()
     this->_modelFile = "";
 }
 
+/**
+ * Class destructor.
+ */
 RF_IO::~RF_IO()
 {
 }
@@ -109,7 +112,7 @@ RF_RandomForest* RF_IO::readModel()
                 {
                     uint key = String2Number<uint>(prob.substr(0, prob.find("=")));
                     float value = String2Number<float>(prob.substr(prob.find("=") + 1, prob.length() - prob.find("=")));
-                    p->addValues(key, value);
+                    p->addValue(key, value);
                 }
                 tree->addSubtree(true, String2Number<int>(nodeNr), 0, 0, NULL, p);
             }

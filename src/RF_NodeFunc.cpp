@@ -5,10 +5,16 @@
 
 #include "RF_NodeFunc.h"
 
+/**
+ * Class constructor.
+ */
 RF_NodeFunc::RF_NodeFunc()
 {
 }
 
+/**
+ * Class destructor.
+ */
 RF_NodeFunc::~RF_NodeFunc()
 {
 }

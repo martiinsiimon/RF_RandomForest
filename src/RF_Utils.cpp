@@ -20,8 +20,11 @@ static string RF_help =
     "  ./RF_Utils test data_file model_file\n"
     "  ./RF_Utils help";
 
-/*
- *
+/**
+ * 
+ * @param argc
+ * @param argv
+ * @return
  */
 int main(int argc, char** argv)
 {

@@ -11,6 +11,9 @@
 
 using namespace std;
 
+/**
+ * Class constructor.
+ */
 RF_Train::RF_Train()
 {
     this->_data = NULL;
@@ -33,6 +36,9 @@ RF_Train::RF_Train(string dataFile, string modelFile)
     this->_n = RF_N;
 }
 
+/**
+ * Class destructor.
+ */
 RF_Train::~RF_Train()
 {
     if (this->_forest != NULL)

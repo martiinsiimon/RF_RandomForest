@@ -10,6 +10,9 @@
 using namespace cv;
 using namespace std;
 
+/**
+ * Class constructor.
+ */
 RF_Test::RF_Test()
 {
     this->modelFile = "";
@@ -32,6 +35,9 @@ RF_Test::RF_Test(string _dataPath, string _modelPath)
     this->sum = 0.0;
 }
 
+/**
+ * Class destructor.
+ */
 RF_Test::~RF_Test()
 {
     if (this->forest != NULL)

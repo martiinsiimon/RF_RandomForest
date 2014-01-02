@@ -9,10 +9,16 @@
 
 using namespace std;
 
+/**
+ * Class constructor.
+ */
 RF_DataSampleCont::RF_DataSampleCont()
 {
 }
 
+/**
+ * Class destructor.
+ */
 RF_DataSampleCont::~RF_DataSampleCont()
 {
     for (uint i = 0; i < this->_data.size(); i++)
