@@ -17,15 +17,12 @@ public:
     RF_DataSample();
     virtual ~RF_DataSample();
 
-    void addChannel(Mat m, int i);
-
+    void setChannel(Mat m, int i);
+    Mat getChannel(int i);
     void setLabel(Mat m);
     Mat getLabel();
     void setName(string s);
     string getName();
-    Mat getChannel(int i);
-    RF_DataSample* getSubsample(int lx, int ly, int hx, int hy);
-
     int getWidth();
     int getHeight();
 
@@ -36,6 +33,8 @@ public:
     void createBlueChannel();
 
     float getSimilarityOflabels(RF_DataSample* ds);
+    RF_DataSample* getSubsample(int lx, int ly, int hx, int hy);
+
 private:
     string _name;
     map<int, Mat> _channel;

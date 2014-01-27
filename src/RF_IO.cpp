@@ -65,7 +65,7 @@ RF_DataSampleCont* RF_IO::readData()
         string labelPath = line.substr(line.find(";") + 1, line.length() - line.find(";") - 1);
 
         sample->setName(imgPath);
-        sample->addChannel(imread(imgPath, CV_LOAD_IMAGE_COLOR), T_CHANNEL_RGB);
+        sample->setChannel(imread(imgPath, CV_LOAD_IMAGE_COLOR), T_CHANNEL_RGB);
         sample->setLabel(imread(labelPath, CV_LOAD_IMAGE_COLOR));
 
         cont->addSample(sample);

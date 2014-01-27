@@ -1,10 +1,10 @@
-POV-semantic-segmentation
-=========================
-Computer vision - Object segmentation in images
+RF_RandomForest
+===============
+General purpose random forest implementation
 
 Who is the author?
-----------------
- * Martin Simon <xsimon14@stud.fit.vutbr.cz> <martiinsiimon@gmail.com>
+------------------
+ * Martin Simon <martiinsiimon@gmail.com>
 
 What the project license?
 -------------------------

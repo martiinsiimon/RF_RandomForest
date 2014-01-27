@@ -28,11 +28,23 @@ RF_DataSampleCont::~RF_DataSampleCont()
     this->_data.clear();
 }
 
+/**
+ * Get number of samples stored in this container
+ *
+ * @return Number of stored samples
+ */
 int RF_DataSampleCont::samplesCount()
 {
     return this->_data.size();
 }
 
+/**
+ * Get sample according to the given id
+ *
+ * @param id Id of the sample from the container
+ * @return Sample from the container
+ * @todo Add check to avoid exception
+ */
 RF_DataSample* RF_DataSampleCont::getSample(int id)
 {
     return this->_data.at(id);
@@ -45,6 +57,7 @@ vector<RF_DataSample*>* RF_DataSampleCont::getSamples()
 
 /**
  * Add given data sample into internal vector.
+ *
  * @param s RF_DataSample to add into vector
  */
 void RF_DataSampleCont::addSample(RF_DataSample* s)
@@ -56,6 +69,9 @@ void RF_DataSampleCont::addSample(RF_DataSample* s)
     this->_data.push_back(s);
 }
 
+/**
+ * Generate all channels from T_CHANNELS enum one-by-ne for every sample in container
+ */
 void RF_DataSampleCont::generateAllChannels()
 {
     for (int i = T_CHANNEL_RGB; i != T_CHANNEL_LAST; i++)
@@ -64,9 +80,14 @@ void RF_DataSampleCont::generateAllChannels()
     }
 }
 
+/**
+ * Generate channel determined by id for every sample in container
+ *
+ * @param id Id of the channel from T_CHANNELS enum
+ */
 void RF_DataSampleCont::generateChannel(int id)
 {
-    for (uint i = 0; i< this->_data.size(); i++)
+    for (uint i = 0; i < this->_data.size(); i++)
     {
         this->_data.at(i)->generateChannel(id);
     }

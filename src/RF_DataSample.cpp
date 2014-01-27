@@ -29,7 +29,7 @@ RF_DataSample::~RF_DataSample()
  * @param m New channel to be add
  * @param i Index in internal channel vector where the new channel will be stored
  */
-void RF_DataSample::addChannel(Mat m, int i)
+void RF_DataSample::setChannel(Mat m, int i)
 {
     this->_channel[i] = m;
 }
@@ -37,9 +37,9 @@ void RF_DataSample::addChannel(Mat m, int i)
 /**
  * Return channel at given position in internal channel vector.
  *
- * @todo Add check for channel existance to avoid possible exception
  * @param i Index of wanted channel in internal channel vector
  * @return Channel at given index
+ * @todo Add check for channel existance to avoid possible exception
  */
 Mat RF_DataSample::getChannel(int i)
 {
@@ -144,22 +144,27 @@ RF_DataSample* RF_DataSample::getSubsample(int lx, int ly, int hx, int hy)
             /* Only one element matrix wanted */
             if (it->first == T_CHANNEL_RGB)
             {
-                ds->addChannel(Mat(it->second.at<Vec3b>(ly, lx)), it->first);
+                ds->setChannel(Mat(it->second.at<Vec3b>(ly, lx)), it->first);
             }
             else
             {
-                ds->addChannel(Mat(1, 1, CV_8UC1, Scalar(it->second.at<uchar>(ly, lx))), it->first);
+                ds->setChannel(Mat(1, 1, CV_8UC1, Scalar(it->second.at<uchar>(ly, lx))), it->first);
             }
         }
         else
         {
             /* Rectangle of original sample wanted */
-            ds->addChannel(Mat(it->second, Rect(lx, ly, hx - lx, hy - ly)), it->first);
+            ds->setChannel(Mat(it->second, Rect(lx, ly, hx - lx, hy - ly)), it->first);
         }
     }
     return ds;
 }
 
+/**
+ * Generate channel determined by id from enum T_CHANNELS. It contains switch-case statement with hardcoded action what channel should be generated. It does not actully generate the channel, only call the function witch does.
+ *
+ * @param id ID from T_CHANNELS enum to determine requested channel
+ */
 void RF_DataSample::generateChannel(int id)
 {
     switch (id)
@@ -183,6 +188,9 @@ void RF_DataSample::generateChannel(int id)
     }
 }
 
+/**
+ * Generate grayscale channel from the original rgb channel and store it
+ */
 void RF_DataSample::createGrayscaleChannel()
 {
     Mat gray;
@@ -190,6 +198,9 @@ void RF_DataSample::createGrayscaleChannel()
     this->_channel[T_CHANNEL_GRAY] = gray;
 }
 
+/**
+ * Generate only red channel from the original rgb channel and store it
+ */
 void RF_DataSample::createRedChannel()
 {
     Mat channel[3];
@@ -201,6 +212,9 @@ void RF_DataSample::createRedChannel()
     this->_channel[T_CHANNEL_R] = ch;
 }
 
+/**
+ * Generate only green channel from the original rgb channel and store it
+ */
 void RF_DataSample::createGreenChannel()
 {
     Mat channel[3];
@@ -212,6 +226,9 @@ void RF_DataSample::createGreenChannel()
     this->_channel[T_CHANNEL_G] = ch;
 }
 
+/**
+ * Generate only blue channel from the original rgb channel and store it
+ */
 void RF_DataSample::createBlueChannel()
 {
     Mat channel[3];
@@ -223,11 +240,17 @@ void RF_DataSample::createBlueChannel()
     this->_channel[T_CHANNEL_B] = ch;
 }
 
+/**
+ * Evaluate result. Compare given result DataSample and compare its label with the original one.
+ *
+ * @param ds DataSample of the result of the classification
+ * @return Float value representing percentual similarity of given and real
+ */
 float RF_DataSample::getSimilarityOflabels(RF_DataSample* ds)
 {
     if (this->_label.cols != ds->getLabel().cols || this->_label.rows != ds->getLabel().rows)
     {
-        cerr << "Error, these two matrices aren't same!" << endl;
+        cerr << "Error, these two samples aren't same!" << endl;
         return 0.0f;
     }
 
