@@ -43,7 +43,7 @@ void RF_DataSample::setChannel(Mat m, int i)
  */
 Mat RF_DataSample::getChannel(int i)
 {
-    return this->_channel.at(i);
+    return this->_channel[i];
 }
 
 /**
@@ -114,9 +114,9 @@ string RF_DataSample::getName()
  * @param hy Higher vertex y-coordinate
  * @return New subsample in given region of this sample (with all channels)
  */
-RF_DataSample* RF_DataSample::getSubsample(int lx, int ly, int hx, int hy)
+RF_DataSample *RF_DataSample::getSubsample(int lx, int ly, int hx, int hy)
 {
-    RF_DataSample * ds = new RF_DataSample();
+    RF_DataSample *ds = new RF_DataSample();
 
     /* Set the same name */
     ds->setName(this->_name);
@@ -126,8 +126,7 @@ RF_DataSample* RF_DataSample::getSubsample(int lx, int ly, int hx, int hy)
     {
         /* Only one element matrix wanted */
         ds->setLabel(Mat(this->_label.at<Vec3b>(ly, lx)));
-    }
-    else
+    } else
     {
         /* Rectangle of original sample wanted */
         ds->setLabel(Mat(this->_label, Rect(lx, ly, hx - lx, hy - ly)));
@@ -145,13 +144,11 @@ RF_DataSample* RF_DataSample::getSubsample(int lx, int ly, int hx, int hy)
             if (it->first == T_CHANNEL_RGB)
             {
                 ds->setChannel(Mat(it->second.at<Vec3b>(ly, lx)), it->first);
-            }
-            else
+            } else
             {
                 ds->setChannel(Mat(1, 1, CV_8UC1, Scalar(it->second.at<uchar>(ly, lx))), it->first);
             }
-        }
-        else
+        } else
         {
             /* Rectangle of original sample wanted */
             ds->setChannel(Mat(it->second, Rect(lx, ly, hx - lx, hy - ly)), it->first);
@@ -169,22 +166,34 @@ void RF_DataSample::generateChannel(int id)
 {
     switch (id)
     {
-    case T_CHANNEL_RGB:
-        break;
-    case T_CHANNEL_GRAY:
-        this->createGrayscaleChannel();
-        break;
-    case T_CHANNEL_R:
-        this->createRedChannel();
-        break;
-    case T_CHANNEL_G:
-        this->createGreenChannel();
-        break;
-    case T_CHANNEL_B:
-        this->createBlueChannel();
-        break;
-    default:
-        return;
+        case T_CHANNEL_RGB:
+            break;
+        case T_CHANNEL_HSV:
+            this->createHSVChannel();
+            break;
+        case T_CHANNEL_GRAY:
+            this->createGrayscaleChannel();
+            break;
+        case T_CHANNEL_R:
+            this->createRedChannel();
+            break;
+        case T_CHANNEL_G:
+            this->createGreenChannel();
+            break;
+        case T_CHANNEL_B:
+            this->createBlueChannel();
+            break;
+        case T_CHANNEL_H:
+            this->createHueChannel();
+            break;
+        case T_CHANNEL_S:
+            this->createSaturationChannel();
+            break;
+        case T_CHANNEL_LBP:
+            this->createLBPChannel();
+            break;
+        default:
+            return;
     }
 }
 
@@ -193,13 +202,14 @@ void RF_DataSample::generateChannel(int id)
  */
 void RF_DataSample::createGrayscaleChannel()
 {
-    Mat gray;
+    Mat gray(this->_channel[T_CHANNEL_RGB].rows, this->_channel[T_CHANNEL_RGB].cols, CV_8UC1);
     cvtColor(this->_channel[T_CHANNEL_RGB], gray, CV_BGR2GRAY);
     this->_channel[T_CHANNEL_GRAY] = gray;
 }
 
 /**
  * Generate only red channel from the original rgb channel and store it
+ * @todo add Mat size preallocation
  */
 void RF_DataSample::createRedChannel()
 {
@@ -207,13 +217,14 @@ void RF_DataSample::createRedChannel()
 
     split(this->_channel[T_CHANNEL_RGB], channel); //order BGR
 
-    Mat ch;
+    Mat ch(this->_channel[T_CHANNEL_RGB].rows, this->_channel[T_CHANNEL_RGB].cols, CV_8UC1);
     channel[0].convertTo(ch, CV_8UC1);
     this->_channel[T_CHANNEL_R] = ch;
 }
 
 /**
  * Generate only green channel from the original rgb channel and store it
+ * @todo add Mat size preallocation
  */
 void RF_DataSample::createGreenChannel()
 {
@@ -221,13 +232,14 @@ void RF_DataSample::createGreenChannel()
 
     split(this->_channel[T_CHANNEL_RGB], channel); //order BGR
 
-    Mat ch;
+    Mat ch(this->_channel[T_CHANNEL_RGB].rows, this->_channel[T_CHANNEL_RGB].cols, CV_8UC1);
     channel[1].convertTo(ch, CV_8UC1);
     this->_channel[T_CHANNEL_G] = ch;
 }
 
 /**
  * Generate only blue channel from the original rgb channel and store it
+ * @todo add Mat size preallocation
  */
 void RF_DataSample::createBlueChannel()
 {
@@ -235,10 +247,123 @@ void RF_DataSample::createBlueChannel()
 
     split(this->_channel[T_CHANNEL_RGB], channel); //order BGR
 
-    Mat ch;
+    Mat ch(this->_channel[T_CHANNEL_RGB].rows, this->_channel[T_CHANNEL_RGB].cols, CV_8UC1);
     channel[2].convertTo(ch, CV_8UC1);
     this->_channel[T_CHANNEL_B] = ch;
 }
+
+/**
+ * Generate HSV image
+ */
+void RF_DataSample::createHSVChannel()
+{
+    Mat hsv(this->_channel[T_CHANNEL_RGB].rows, this->_channel[T_CHANNEL_RGB].cols, CV_8UC3);
+    cvtColor(this->_channel[T_CHANNEL_RGB], hsv, CV_BGR2HSV);
+    this->_channel[T_CHANNEL_HSV] = hsv;
+}
+
+/**
+ * Generate hue channel from HSV image
+ * @todo avoid exception, check index existence first
+ * @todo add Mat size preallocation
+ */
+void RF_DataSample::createHueChannel()
+{
+    Mat channel[3];
+
+    try
+    {
+        split(this->_channel[T_CHANNEL_HSV], channel); //order HSV
+    } catch (Exception e)
+    {
+        this->createHSVChannel();
+        split(this->_channel[T_CHANNEL_HSV], channel); //order HSV
+    }
+
+    Mat ch(this->_channel[T_CHANNEL_RGB].rows, this->_channel[T_CHANNEL_RGB].cols, CV_8UC1);
+    channel[0].convertTo(ch, CV_8UC1);
+    this->_channel[T_CHANNEL_H] = ch;
+}
+
+/**
+ * Generate saturation channel from HSV image
+ * @todo avoid exception, check index existence first
+ * @todo add Mat size preallocation
+ */
+void RF_DataSample::createSaturationChannel()
+{
+    Mat channel[3];
+
+    try
+    {
+        split(this->_channel[T_CHANNEL_HSV], channel); //order HSV
+    } catch (Exception e)
+    {
+        this->createHSVChannel();
+        split(this->_channel[T_CHANNEL_HSV], channel); //order HSV
+    }
+
+    Mat ch(this->_channel[T_CHANNEL_RGB].rows, this->_channel[T_CHANNEL_RGB].cols, CV_8UC1);
+    channel[1].convertTo(ch, CV_8UC1);
+    this->_channel[T_CHANNEL_S] = ch;
+}
+
+
+/**
+ * Generate LBP channel from grayscale image
+ * @todo implement more efficiently and invariantly to rotation
+ */
+void RF_DataSample::createLBPChannel()
+{
+    Mat lbp = Mat(this->_channel[T_CHANNEL_GRAY].rows, this->_channel[T_CHANNEL_GRAY].cols, CV_8U, 0.0);
+
+    // Doplnte vypocet LBP pro kazdy pixel sedotonoveho obrazu greyImage a vysledek ulozte do lbp.
+    // Iplementujte zakladni verzi LBP na okoli 3x3 pixelu, ktera produkuje 8-bit kod.
+    // Popis zakladni verze LBP najdete napriklad v:
+    // Topi Maenpaa: THE LOCAL BINARY PATTERN APPROACH TO TEXTURE ANALYSIS  EXTENSIONS AND APPLICATIONS, http://herkules.oulu.fi/isbn9514270762/
+    // Look at page 26 - 2.5.1 The original LBP
+
+    uchar threshold;
+    uchar tmp;
+    for (int y = 1; y < this->_channel[T_CHANNEL_GRAY].rows - 1; y++)
+    {
+        for (int x = 1; x < this->_channel[T_CHANNEL_GRAY].cols - 1; x++)
+        {
+            threshold = this->_channel[T_CHANNEL_GRAY].at<uchar>(y, x);
+
+            tmp = 0;
+
+            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y - 1, x - 1) >= threshold)
+                tmp += 128;
+            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y, x - 1) >= threshold)
+                tmp += 64;
+            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y + 1, x - 1) >= threshold)
+                tmp += 32;
+            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y - 1, x) >= threshold)
+                tmp += 16;
+            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y + 1, x) >= threshold)
+                tmp += 8;
+            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y - 1, x + 1) >= threshold)
+                tmp += 4;
+            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y, x + 1) >= threshold)
+                tmp += 2;
+            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y + 1, x + 1) >= threshold)
+                tmp += 1;
+
+            lbp.at<uchar>(y, x) = tmp;
+        }
+    }
+}
+
+
+/**
+ * Create Histogram of LBP in area 7x7 around every point
+ */
+void RF_DataSample::createHOLBP7Channel()
+{
+return;
+}
+
 
 /**
  * Evaluate result. Compare given result DataSample and compare its label with the original one.
@@ -246,7 +371,7 @@ void RF_DataSample::createBlueChannel()
  * @param ds DataSample of the result of the classification
  * @return Float value representing percentual similarity of given and real
  */
-float RF_DataSample::getSimilarityOflabels(RF_DataSample* ds)
+float RF_DataSample::getSimilarityOflabels(RF_DataSample *ds)
 {
     if (this->_label.cols != ds->getLabel().cols || this->_label.rows != ds->getLabel().rows)
     {
@@ -274,3 +399,4 @@ float RF_DataSample::getSimilarityOflabels(RF_DataSample* ds)
 
     return (float) sum / (float) count * 100;
 }
+

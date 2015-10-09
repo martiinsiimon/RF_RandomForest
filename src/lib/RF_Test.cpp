@@ -3,9 +3,8 @@
  * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
-#include "RF_Test.h"
-#include <iostream>
 #include <opencv2/highgui/highgui.hpp>
+#include "RF_Test.h"
 
 using namespace cv;
 using namespace std;
@@ -94,7 +93,7 @@ void RF_Test::solveData()
         cout << "Testing " << (*it)->getName() << endl;
 
         tmpS = this->forest->solveSample((*it));
-
+        imwrite("result.png", tmpS->getLabel());
         similarity = (*it)->getSimilarityOflabels(tmpS);
         this->sum += similarity;
 

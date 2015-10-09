@@ -5,7 +5,6 @@
 
 #include "RF_DataSampleCont.h"
 #include "RF_Utils.h"
-#include <iostream>
 
 using namespace std;
 
@@ -33,7 +32,7 @@ RF_DataSampleCont::~RF_DataSampleCont()
  *
  * @return Number of stored samples
  */
-int RF_DataSampleCont::samplesCount()
+ulong RF_DataSampleCont::samplesCount()
 {
     return this->_data.size();
 }
@@ -45,7 +44,7 @@ int RF_DataSampleCont::samplesCount()
  * @return Sample from the container
  * @todo Add check to avoid exception
  */
-RF_DataSample* RF_DataSampleCont::getSample(int id)
+RF_DataSample* RF_DataSampleCont::getSample(uint id)
 {
     return this->_data.at(id);
 }

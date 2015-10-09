@@ -31,6 +31,15 @@ public:
     void createRedChannel();
     void createGreenChannel();
     void createBlueChannel();
+    void createHSVChannel();
+    void createHueChannel();
+    void createSaturationChannel();
+    void createLBPChannel();
+    void createSobelHChannel();
+    void createSobelVChannel();
+    void createHOLBP7Channel();
+    void createHOLBP13Channel();
+    void createHOLBP21Channel();
 
     float getSimilarityOflabels(RF_DataSample* ds);
     RF_DataSample* getSubsample(int lx, int ly, int hx, int hy);

@@ -4,11 +4,7 @@
  */
 
 #include "RF_IO.h"
-#include "RF_Utils.h"
-#include <iostream>
-#include <sstream>
 #include <fstream>
-#include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
 using namespace std;
@@ -30,17 +26,33 @@ RF_IO::~RF_IO()
 {
 }
 
+/**
+ * Set path to data file. This is used when data are requested.
+ *
+ * @param f Path to the data file
+ */
 void RF_IO::setDataFile(string f)
 {
     this->_dataFile = f;
 }
 
-
+/**
+ * Set path to model file. This is used to store and read model.
+ *
+ * @param f Path to the model file
+ */
 void RF_IO::setModelFile(string f)
 {
     this->_modelFile = f;
 }
 
+/**
+ * Read data from data file into internal container. This action is needed
+ * before training and testing as well.
+ *
+ * @return Reference to RF_DataSampleCont object with parsed data
+ * @todo Avoid exception
+ */
 RF_DataSampleCont* RF_IO::readData()
 {
     if (this->_dataFile.length() < 1)
@@ -75,6 +87,12 @@ RF_DataSampleCont* RF_IO::readData()
     return cont;
 }
 
+/**
+ * Read and parse model from model file into internal model structure.
+ *
+ * @return Reference to RF_RandomForest object with model parsed
+ * @todo avoid exception
+ */
 RF_RandomForest* RF_IO::readModel()
 {
     if (this->_modelFile.empty())
@@ -97,10 +115,10 @@ RF_RandomForest* RF_IO::readModel()
         stringstream lineStream(line);
         for (string node; getline(lineStream, node, ' ');)
         {
-            int leftBracket = node.find("(");
+            ulong leftBracket = node.find("(");
             string nodeNr = node.substr(0, leftBracket);
             string symbol = node.substr(leftBracket + 1, 1);
-            int rightBracket = node.find(")", leftBracket);
+            ulong rightBracket = node.find(")", leftBracket);
 
             if (symbol == ":")
             {
@@ -119,18 +137,18 @@ RF_RandomForest* RF_IO::readModel()
             else
             {
                 /* This is a sub-tree */
-                int comma = node.find(",", leftBracket);
+                ulong comma = node.find(",", leftBracket);
                 string leftTree = node.substr(leftBracket + 1, comma - leftBracket - 1);
                 string rightTree = node.substr(comma + 1, rightBracket - comma - 1);
                 leftBracket = node.find("(", rightBracket);
                 rightBracket = node.find(")", leftBracket);
-                int comma1 = node.find(",", leftBracket);
+                ulong comma1 = node.find(",", leftBracket);
                 string funcType = node.substr(leftBracket + 1, comma1 - leftBracket - 1);
 
                 RF_NodeFunc *f = new RF_NodeFunc();
                 if (String2Number<int>(funcType) == RF_FUNC_ABSTEST)
                 {
-                    int comma2 = node.find(",", comma1 + 1);
+                    ulong comma2 = node.find(",", comma1 + 1);
                     string funcChannel = node.substr(comma1 + 1, comma2 - comma1 - 1);
                     string funcThreshold = node.substr(comma2 + 1, rightBracket - comma2 - 1);
                     f->setType(String2Number<int>(funcType));
@@ -151,10 +169,12 @@ RF_RandomForest* RF_IO::readModel()
 }
 
 /**
- * Write random forest model given in parameter into file also given in parameter.
+ * Write random forest model given in parameter into file determined by model
+ * file object attribute. To set model file (output file) call
+ * setModelFile(file).
  *
- * @param rf
- * @param path
+ * @param rf Reference to model which should be written
+ * @todo Avoid exception
  */
 void RF_IO::writeModel(RF_RandomForest * rf)
 {

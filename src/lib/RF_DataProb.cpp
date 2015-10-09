@@ -5,7 +5,6 @@
 
 #include <stdexcept>
 #include <iostream>
-#include <string>
 #include "RF_DataProb.h"
 #include "RF_Utils.h"
 
@@ -34,7 +33,7 @@ void RF_DataProb::increasePosteriori(uint i)
 {
     try
     {
-        this->probabilities.at(i) = this->probabilities.at(i) + 1;
+        this->probabilities[i] = this->probabilities.at(i) + 1;
     }
     catch (out_of_range)
     {
@@ -53,15 +52,16 @@ void RF_DataProb::normalize()
     this->probabilities.erase(0);
 
     /* Count sum */
-    for (map<uint, float>::iterator it = this->probabilities.begin(); it != this->probabilities.end(); it++)
+    map<uint, float>::iterator it;
+    for (it = this->probabilities.begin(); it != this->probabilities.end(); it++)
     {
         sum += it->second;
     }
 
     /* Divide every element by sum */
-    for (map<uint, float>::iterator it = this->probabilities.begin(); it != this->probabilities.end(); it++)
+    for (it = this->probabilities.begin(); it != this->probabilities.end(); it++)
     {
-        this->probabilities.at(it->first) /= sum;
+        this->probabilities[it->first] /= sum;
     }
 }
 
@@ -75,7 +75,8 @@ string RF_DataProb::dumpProbabilities()
     string result = "";
 
     /* Append every pair key-value */
-    for (map<uint, float>::iterator it = this->probabilities.begin(); it != this->probabilities.end();)
+    map<uint, float>::iterator it;
+    for (it = this->probabilities.begin(); it != this->probabilities.end();)
     {
         result += Number2String(it->first);
         result += "=";
@@ -117,12 +118,13 @@ void RF_DataProb::clear()
 void RF_DataProb::sum(RF_DataProb* p)
 {
     /* Iterate over all items */
-    for (map<uint, float>::iterator it = p->probabilities.begin(); it != p->probabilities.end(); it++)
+    map<uint, float>::iterator it;
+    for (it = p->probabilities.begin(); it != p->probabilities.end(); it++)
     {
         try
         {
             /* Add value if key exists */
-            this->probabilities.at(it->first) += it->second;
+            this->probabilities[it->first] += it->second;
         }
         catch (out_of_range)
         {
@@ -141,7 +143,8 @@ uint RF_DataProb::getMaximal()
 {
     uint max = 0;
     float maxVal = 0.0f;
-    for (map<uint, float>::iterator it = this->probabilities.begin(); it != this->probabilities.end(); it++)
+    map<uint, float>::iterator it;
+    for (it = this->probabilities.begin(); it != this->probabilities.end(); it++)
     {
         if (it->second > maxVal)
         {

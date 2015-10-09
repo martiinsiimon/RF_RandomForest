@@ -6,10 +6,8 @@
 #include <vector>
 #include <queue>
 #include <iostream>
-#include <string>
 
 #include "RF_Tree.h"
-#include "RF_Utils.h"
 
 using namespace std;
 using namespace cv;
@@ -169,7 +167,7 @@ void RF_Tree::train()
         int tmpMax = 0;
         int tmpMin = 0;
 
-        for (int i = 0; i < dsc->samplesCount(); i++)
+        for (uint i = 0; i < dsc->samplesCount(); i++)
         {
             Mat tmpSample = dsc->getSample(i)->getChannel(this->_channels.at(ch));
 
@@ -195,7 +193,7 @@ void RF_Tree::train()
 
     /* Store found threshold and channel */
     int threshold = ((maximal - minimal) / 2) + minimal;
-    int channel = this->_channels.at(maxCh);
+    int channel = this->_channels.at((uint)maxCh);
 
     this->func = new RF_NodeFunc();
     this->func->setType(RF_FUNC_ABSTEST);
@@ -206,7 +204,7 @@ void RF_Tree::train()
     RF_DataSampleCont* rightDSC = new RF_DataSampleCont();
     RF_DataSampleCont* leftDSC = new RF_DataSampleCont();
 
-    for (int i = 0; i < dsc->samplesCount(); i++)
+    for (uint i = 0; i < dsc->samplesCount(); i++)
     {
         Mat tmpSample = dsc->getSample(i)->getChannel(channel);
         if ((int) tmpSample.at<uchar>(y, x) < threshold)
@@ -240,7 +238,7 @@ void RF_Tree::generatePosteriori()
     int x = RF_REC_W / 2;
     int y = RF_REC_H / 2;
 
-    for (int i = 0; i < this->_dataset->samplesCount(); i++)
+    for (uint i = 0; i < this->_dataset->samplesCount(); i++)
     {
         RF_DataSample* ds = this->_dataset->getSample(i);
         RF_Tree * tree = this;

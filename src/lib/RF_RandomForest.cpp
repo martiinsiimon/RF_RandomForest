@@ -3,13 +3,12 @@
  * Author: Martin Simon <martiinsiimon@gmail.com>
  */
 
-#include "RF_RandomForest.h"
-#include "RF_Utils.h"
-#include "RF_DataProb.h"
+
 #include <stdlib.h>     /* srand, rand */
-#include <time.h>       /* time */
 #include <queue>
 #include <string>
+#include "RF_DataProb.h"
+#include "RF_RandomForest.h"
 
 using namespace std;
 
@@ -46,7 +45,7 @@ void RF_RandomForest::trainForest()
     }
 
     /* Re-set random seed */
-    srand(time(NULL));
+    srand((unsigned int) time(NULL));
 
     /* For every tree in forest*/
     for (int i = 0; i < this->_treesCount; i++)
@@ -57,7 +56,7 @@ void RF_RandomForest::trainForest()
 
         /* Generate random dataset */
         RF_DataSampleCont * sdc = new RF_DataSampleCont();
-        for (int s = 0; s < this->_data->samplesCount(); s++)
+        for (uint s = 0; s < this->_data->samplesCount(); s++)
         {
             RF_DataSample * tmp = this->_data->getSample(s);
             int w = tmp->getWidth();
@@ -210,7 +209,6 @@ RF_DataSample * RF_RandomForest::solveSample(RF_DataSample* ds)
 {
     RF_DataProb * probs = new RF_DataProb();
     RF_DataSample* labels = new RF_DataSample();
-    //Mat labMat(ds->getLabel().rows, ds->getLabel().cols, CV_8UC3);
     Mat labMat(ds->getLabel().size(), CV_8UC3);
     RF_DataSample* tmpS;
     RF_DataProb *tmpP;
@@ -225,11 +223,10 @@ RF_DataSample * RF_RandomForest::solveSample(RF_DataSample* ds)
             {
                 tmpP = (*it)->solveTree(tmpS);
                 probs->sum(tmpP);
-                //break;
             }
             probs->normalize();
             uint max = probs->getMaximal();
-            labMat.at<Vec3b>(y, x) = Vec3b((max & 255), (max >> 8) & 255, (max >> 16) & 255);
+            labMat.at<Vec3b>(y, x) = Vec3b((uchar)(max & 0xff), (uchar)((max >> 8) & 0xff), (uchar)((max >> 16) & 0xff));
         }
     }
     labels->setLabel(labMat);

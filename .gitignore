@@ -1,6 +1,11 @@
 *.o
-src/RF_Utils
 doc/
 data/
 nbproject/
-utils/pov-semantic-segmentation
+.idea/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+bin/
+*Makefile
+lib/

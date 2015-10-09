@@ -16,9 +16,9 @@ public:
     RF_DataSampleCont();
     virtual ~RF_DataSampleCont();
 
-    int samplesCount();
+    ulong samplesCount();
     vector<RF_DataSample*>* getSamples();
-    RF_DataSample* getSample(int id);
+    RF_DataSample* getSample(uint id);
     void addSample(RF_DataSample* s);
     void generateAllChannels();
     void generateChannel(int);

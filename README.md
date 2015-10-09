@@ -6,9 +6,9 @@ Who is the author?
 ------------------
  * Martin Simon <martiinsiimon@gmail.com>
 
-What the project license?
--------------------------
-See file LICENSE. If any part is taken from other source, it's mentined in file header
+What's the project license?
+---------------------------
+See file LICENSE. If any part is taken from other source, it's mentioned in file header
 
 How to build/run?
 -----------------

@@ -21,13 +21,13 @@ public:
     void setDataFile(string f);
     void setModelFile(string f);
 
-    void prepareTraining(void);
-    void trainForest(void);
+    void prepareTraining();
+    void trainForest();
 
-    void exportModel(void);
+    void exportModel();
 
-    void printResults(void);
-    string getResults(void);
+    void printResults();
+    string getResults();
 private:
 
     /* Forest configuration */

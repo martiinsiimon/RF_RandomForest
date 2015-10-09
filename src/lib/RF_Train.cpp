@@ -20,7 +20,9 @@ RF_Train::RF_Train()
     this->_forest = NULL;
 }
 
-
+/**
+ * Class constructor with data provided
+ */
 RF_Train::RF_Train(string dataFile, string modelFile)
 {
     this->_dataFile = dataFile;
@@ -47,17 +49,26 @@ RF_Train::~RF_Train()
         delete this->_data;
 }
 
+/**
+ * Set data file
+ */
 void RF_Train::setDataFile(string f)
 {
     this->_dataFile = f;
 }
 
+/**
+ * Set model file
+ */
 void RF_Train::setModelFile(string f)
 {
     this->_modelFile = f;
 }
 
-void RF_Train::prepareTraining(void)
+/**
+ * Provide needed information for model training
+ */
+void RF_Train::prepareTraining()
 {
     RF_IO * io = new RF_IO();
     io->setDataFile(this->_dataFile);
@@ -70,6 +81,9 @@ void RF_Train::prepareTraining(void)
     this->_data->generateAllChannels();
 }
 
+/**
+ * Train random forest above provided information
+ */
 void RF_Train::trainForest()
 {
     cout << "Training random forest started" << endl;
@@ -82,10 +96,14 @@ void RF_Train::trainForest()
 
     rf->trainForest();
 
+    this->_trained = true;
     this->_forest = rf;
 }
 
-void RF_Train::exportModel(void)
+/**
+ * Export trained model to file
+ */
+void RF_Train::exportModel()
 {
     cout << "Exporting model" << endl;
     RF_IO * io = new RF_IO();
@@ -94,13 +112,21 @@ void RF_Train::exportModel(void)
     delete io;
 }
 
-void RF_Train::printResults(void)
+/**
+ * Print information about model training
+ */
+void RF_Train::printResults()
 {
     /* Print results */
-    this->getResults();
+    cout << this->getResults() << endl;
 }
 
-string RF_Train::getResults(void)
+/**
+ * Return model information after training
+ *
+ * @todo implement information gain from trained model to print it
+ */
+string RF_Train::getResults()
 {
     string resultDump = "Model status: ";
 
@@ -110,16 +136,20 @@ string RF_Train::getResults(void)
         /* The model is already trained */
         resultDump += "TRAINED\n";
         //TODO implement information from trained forest
+        resultDump += "Maximal depth: ";
+        resultDump += Number2String(this->_maxDepth);
+        resultDump += '\n';
+        resultDump += "Maximal trees count: ";
+        resultDump += Number2String(this->_maxTrees);
     }
     else
     {
         resultDump += "NOT TRAINED\n";
         resultDump += "Maximal depth: ";
-        resultDump += this->_maxDepth;
+        resultDump += Number2String(this->_maxDepth);
         resultDump += '\n';
         resultDump += "Maximal trees count: ";
-        resultDump += this->_maxTrees;
-        resultDump += '\n';
+        resultDump += Number2String(this->_maxTrees);
     }
 
     return resultDump;
