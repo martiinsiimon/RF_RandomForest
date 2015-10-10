@@ -22,7 +22,7 @@ RF_DataSampleCont::~RF_DataSampleCont()
 {
     for (uint i = 0; i < this->_data.size(); i++)
     {
-        delete this->_data.at(i);
+        delete this->_data[i];
     }
     this->_data.clear();
 }
@@ -42,11 +42,10 @@ ulong RF_DataSampleCont::samplesCount()
  *
  * @param id Id of the sample from the container
  * @return Sample from the container
- * @todo Add check to avoid exception
  */
 RF_DataSample* RF_DataSampleCont::getSample(uint id)
 {
-    return this->_data.at(id);
+    return this->_data[id];
 }
 
 vector<RF_DataSample*>* RF_DataSampleCont::getSamples()
@@ -69,13 +68,24 @@ void RF_DataSampleCont::addSample(RF_DataSample* s)
 }
 
 /**
- * Generate all channels from T_CHANNELS enum one-by-ne for every sample in container
+ * Generate all channels from T_CHANNELS enum one-by-one for every sample in container
  */
 void RF_DataSampleCont::generateAllChannels()
 {
     for (int i = T_CHANNEL_RGB; i != T_CHANNEL_LAST; i++)
     {
         this->generateChannel(i);
+    }
+}
+
+/**
+ * Generate all allowed channels one-by-one for every sample in container
+ */
+void RF_DataSampleCont::generateAllowedChannels(int *ch, int len)
+{
+    for (int i = 0; i != len; i++)
+    {
+        this->generateChannel(ch[i]);
     }
 }
 

@@ -26,18 +26,24 @@ public:
     void setData(RF_DataSampleCont * data);
     void setN(int n);
 
-    void trainForest();
+    bool trainForest();
     void validateTree(RF_Tree* t);
 
     string dumpForest();
 
     void addTree(RF_Tree* t);
 
+    void addAllowedChannel(int ch);
+    void addAllowedChannel(int *ch, int n);
+    vector<int> getAllowedChannels();
+    void cleanAllowedChannels();
+
     RF_DataSample * solveSample(RF_DataSample* ds);
 private:
     int _treesCount;
     int _maxDepth;
     int _n;
+    vector<int> _allowed_channels;
     RF_DataSampleCont * _data;
     vector<RF_Tree *> _trees;
 };

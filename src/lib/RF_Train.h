@@ -28,17 +28,20 @@ public:
 
     void printResults();
     string getResults();
+    bool trained;
 private:
 
     /* Forest configuration */
     int _maxDepth;
     int _maxTrees;
     int _n;
+    int _allowedChannels[7] = {T_CHANNEL_GRAY, T_CHANNEL_R, T_CHANNEL_G, T_CHANNEL_B, T_CHANNEL_H, T_CHANNEL_S, T_CHANNEL_LBP}; // TODO move to user definition
+    int _chanelsLen = 7;
 
     /* Other attributes */
     string _dataFile;
     string _modelFile;
-    bool _trained;
+
 
     /* Training data */
     RF_DataSampleCont * _data;

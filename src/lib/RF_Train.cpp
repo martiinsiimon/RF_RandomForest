@@ -28,7 +28,7 @@ RF_Train::RF_Train(string dataFile, string modelFile)
     this->_dataFile = dataFile;
     this->_modelFile = modelFile;
 
-    this->_trained = false;
+    this->trained = false;
     this->_data = NULL;
     this->_forest = NULL;
 
@@ -70,15 +70,19 @@ void RF_Train::setModelFile(string f)
  */
 void RF_Train::prepareTraining()
 {
-    RF_IO * io = new RF_IO();
+    RF_IO *io = new RF_IO();
     io->setDataFile(this->_dataFile);
 
     this->_data = io->readData();
 
     delete io;
 
+    /* Generate all allowed channels */
+    // TODO this should be in configuration
+    this->_data->generateAllowedChannels(this->_allowedChannels, this->_chanelsLen);
+
     /* Generate all channels */
-    this->_data->generateAllChannels();
+    //this->_data->generateAllChannels();
 }
 
 /**
@@ -88,15 +92,22 @@ void RF_Train::trainForest()
 {
     cout << "Training random forest started" << endl;
 
-    RF_RandomForest* rf = new RF_RandomForest();
+    RF_RandomForest *rf = new RF_RandomForest();
     rf->setData(this->_data);
     rf->setMaxDepth(this->_maxDepth);
     rf->setTreesCount(this->_maxTrees);
     rf->setN(this->_n);
+    rf->addAllowedChannel(this->_allowedChannels, this->_chanelsLen);
 
-    rf->trainForest();
+    cout << endl << "Allowed channels:";
+    for (int x = 0; x < this->_chanelsLen; x++)
+    {
+        cout << " " << this->_allowedChannels[x];
+    }
+    cout << endl;
+    if (rf->trainForest())
+        this->trained = true;
 
-    this->_trained = true;
     this->_forest = rf;
 }
 
@@ -106,7 +117,7 @@ void RF_Train::trainForest()
 void RF_Train::exportModel()
 {
     cout << "Exporting model" << endl;
-    RF_IO * io = new RF_IO();
+    RF_IO *io = new RF_IO();
     io->setModelFile(this->_modelFile);
     io->writeModel(this->_forest);
     delete io;
@@ -131,7 +142,7 @@ string RF_Train::getResults()
     string resultDump = "Model status: ";
 
     /* Check if model is trained or not */
-    if (this->_trained)
+    if (this->trained)
     {
         /* The model is already trained */
         resultDump += "TRAINED\n";
@@ -141,8 +152,7 @@ string RF_Train::getResults()
         resultDump += '\n';
         resultDump += "Maximal trees count: ";
         resultDump += Number2String(this->_maxTrees);
-    }
-    else
+    } else
     {
         resultDump += "NOT TRAINED\n";
         resultDump += "Maximal depth: ";

@@ -55,7 +55,8 @@ int main(int argc, char** argv)
         model->trainForest();
 
         /* Dump trained model into file */
-        model->exportModel();
+        if (model->trained)
+            model->exportModel();
 
         /* Print parameters of trained model */
         model->printResults();

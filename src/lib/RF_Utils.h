@@ -10,9 +10,9 @@
 #include <sstream>
 
 /* Hardcoded constant. TODO: make them user defined variables */
-#define RF_MAX_DEPTH 8
-#define RF_MAX_TREES 8
-#define RF_N 3
+#define RF_MAX_DEPTH 8 // max depth of a tree
+#define RF_MAX_TREES 8 // max number of trained trees
+#define RF_N 3 // number of channels in one tree
 #define RF_REC_W 5
 #define RF_REC_H 5
 
@@ -28,13 +28,13 @@ enum T_CHANNELS
     T_CHANNEL_HSV, // original image in HSV color model
     T_CHANNEL_H, // hue color channel (HSV)
     T_CHANNEL_S, // saturation color channel (HSV)
-    T_CHANNEL_LAST, //sentinel
     T_CHANNEL_LBP, // rotation invariant local binary pattern (8-neighbourhood)
     T_CHANNEL_SOBEL_H, // horizontal sobel filter response
     T_CHANNEL_SOBEL_V, // vertical sobel filter response
     T_CHANNEL_HOLBP21, // histogram of LBP 21x21
     T_CHANNEL_HOLBP13, // histogram of LBP 13x13
     T_CHANNEL_HOLBP7, // histogram of LBP 7x7
+    T_CHANNEL_LAST, //sentinel
 };
 
 template <typename T>

@@ -21,6 +21,8 @@ public:
     RF_DataSample* getSample(uint id);
     void addSample(RF_DataSample* s);
     void generateAllChannels();
+    void generateAllowedChannels(int *ch, int len);
+
     void generateChannel(int);
 private:
     vector<RF_DataSample*> _data;

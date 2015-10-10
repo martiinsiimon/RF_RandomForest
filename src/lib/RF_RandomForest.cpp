@@ -36,13 +36,18 @@ RF_RandomForest::~RF_RandomForest()
     }
 }
 
-void RF_RandomForest::trainForest()
+bool RF_RandomForest::trainForest()
 {
-    if (this->_data == NULL || this->_maxDepth == 0 || this->_n == 0 || this->_treesCount == 0)
+    if (this->_data == NULL || this->_maxDepth == 0 || this->_n == 0 || this->_treesCount == 0 ||
+        this->_allowed_channels.size() < 1)
     {
         cerr << "Some of needed parameters are not set!" << endl;
-        return;
+        return false;
     }
+
+    RF_Tree *t;
+    RF_DataSampleCont *sdc;
+    RF_DataSample *tmp;
 
     /* Re-set random seed */
     srand((unsigned int) time(NULL));
@@ -51,49 +56,54 @@ void RF_RandomForest::trainForest()
     for (int i = 0; i < this->_treesCount; i++)
     {
         /* Create tree */
-        RF_Tree* t = new RF_Tree();
+        t = new RF_Tree();
         //t->setId(0);
 
         /* Generate random dataset */
-        RF_DataSampleCont * sdc = new RF_DataSampleCont();
+        sdc = new RF_DataSampleCont();
         for (uint s = 0; s < this->_data->samplesCount(); s++)
         {
-            RF_DataSample * tmp = this->_data->getSample(s);
+            tmp = this->_data->getSample(s);
             int w = tmp->getWidth();
             int h = tmp->getHeight();
 
-            for (int j = 0; j < this->_n * 20; j++)
+            for (int j = 0; j < this->_n * 40; j++)
             {
-                int lx = rand() % (w - this->_n);
-                int ly = rand() % (h - this->_n);
-                sdc->addSample(tmp->getSubsample(lx, ly, lx + this->_n, ly + this->_n));
+                int lx = rand() % (w - RF_REC_W);
+                int ly = rand() % (h - RF_REC_H);
+                sdc->addSample(tmp->getSubsample(lx, ly, lx + RF_REC_W, ly + RF_REC_H));
             }
         }
         t->setDataset(sdc);
 
         /* Generate random channel set */
         vector<int> channels;
-        for (int j = 0; j < this->_n;)
+        uint ch, x;
+        int j, item;
+        for (j = 0; j < this->_n;)
         {
-            int ch = (rand() % (T_CHANNEL_LAST - 1)) + 1;
-            uint x;
-            for (x = 0; x < channels.size(); x++)
-            {
-                if (channels.at(x) == ch)
-                    break;
-            }
-            if (x < channels.size())
-            {
+            ch = (rand() % ((uint) this->_allowed_channels.size() - 1));
+            item = this->_allowed_channels[ch];
+            if(std::find(channels.begin(), channels.end(), item) != channels.end())
                 continue;
-            }
-            channels.push_back(ch);
+            else
+                channels.push_back(item);
             j++;
         }
+
         t->setChannels(channels);
         t->setMaximalDepth(this->_maxDepth - 1);
 
         /* Train the tree */
         cout << "Training tree: " << i << endl;
+        cout << "Dataset size: " << sdc->samplesCount() << endl;
+        cout << "Channels count: " << channels.size() << endl;
+        cout << "Channels:";
+        for (x = 0; x < channels.size(); x++)
+        {
+            cout << " " << channels[x];
+        }
+        cout << endl;
         t->train();
 
         /* Generate posteriori probabilities */
@@ -106,6 +116,7 @@ void RF_RandomForest::trainForest()
         /* Put the tree into forest */
         this->_trees.push_back(t);
     }
+    return true;
 }
 
 void RF_RandomForest::setTreesCount(int n)
@@ -118,15 +129,15 @@ void RF_RandomForest::setMaxDepth(int n)
     this->_maxDepth = n;
 }
 
-void RF_RandomForest::setData(RF_DataSampleCont * data)
+void RF_RandomForest::setData(RF_DataSampleCont *data)
 {
     this->_data = data;
 }
 
-void RF_RandomForest::validateTree(RF_Tree* t)
+void RF_RandomForest::validateTree(RF_Tree *t)
 {
-    queue<RF_Tree*> todo;
-
+    queue<RF_Tree *> todo;
+    RF_Tree *tmp;
     int id = 0;
     t->setId(id++);
 
@@ -134,7 +145,7 @@ void RF_RandomForest::validateTree(RF_Tree* t)
 
     while (!todo.empty())
     {
-        RF_Tree* tmp = todo.front();
+        tmp = todo.front();
         todo.pop();
 
         if (tmp->isLeaf())
@@ -155,8 +166,7 @@ void RF_RandomForest::validateTree(RF_Tree* t)
                 cerr << "Tree is marked as a leaf and has a node function set!" << endl;
                 delete tmp->getFunc();
             }
-        }
-        else
+        } else
         {
             if (tmp->getLeft() == NULL)
             {
@@ -191,7 +201,7 @@ void RF_RandomForest::setN(int n)
 string RF_RandomForest::dumpForest()
 {
     string result = "";
-    for (vector<RF_Tree*>::iterator it = this->_trees.begin(); it != this->_trees.end(); it++)
+    for (vector<RF_Tree *>::iterator it = this->_trees.begin(); it != this->_trees.end(); it++)
     {
         result += "#Tree \n";
         result += (*it)->dumpTree();
@@ -200,18 +210,19 @@ string RF_RandomForest::dumpForest()
     return result;
 }
 
-void RF_RandomForest::addTree(RF_Tree* t)
+void RF_RandomForest::addTree(RF_Tree *t)
 {
     this->_trees.push_back(t);
 }
 
-RF_DataSample * RF_RandomForest::solveSample(RF_DataSample* ds)
+RF_DataSample *RF_RandomForest::solveSample(RF_DataSample *ds)
 {
-    RF_DataProb * probs = new RF_DataProb();
-    RF_DataSample* labels = new RF_DataSample();
+    RF_DataProb *probs = new RF_DataProb();
+    RF_DataSample *labels = new RF_DataSample();
     Mat labMat(ds->getLabel().size(), CV_8UC3);
-    RF_DataSample* tmpS;
+    RF_DataSample *tmpS;
     RF_DataProb *tmpP;
+    vector<RF_Tree *>::iterator it;
 
     for (int y = 0; y < ds->getHeight(); y++)
     {
@@ -219,19 +230,44 @@ RF_DataSample * RF_RandomForest::solveSample(RF_DataSample* ds)
         {
             probs->clear();
             tmpS = ds->getSubsample(x, y, x, y);
-            for (vector<RF_Tree*>::iterator it = this->_trees.begin(); it != this->_trees.end(); it++)
+            for (it = this->_trees.begin(); it != this->_trees.end(); it++)
             {
                 tmpP = (*it)->solveTree(tmpS);
                 probs->sum(tmpP);
             }
+            delete tmpS;
             probs->normalize();
             uint max = probs->getMaximal();
-            labMat.at<Vec3b>(y, x) = Vec3b((uchar)(max & 0xff), (uchar)((max >> 8) & 0xff), (uchar)((max >> 16) & 0xff));
+            labMat.at<Vec3b>(y, x) = Vec3b((uchar) (max & 0xff), (uchar) ((max >> 8) & 0xff),
+                                           (uchar) ((max >> 16) & 0xff));
         }
     }
     labels->setLabel(labMat);
 
     delete probs;
 
+
     return labels;
 }
+
+void RF_RandomForest::addAllowedChannel(int ch)
+{
+    this->_allowed_channels.push_back(ch);
+}
+
+void RF_RandomForest::addAllowedChannel(int *ch, int n)
+{
+    this->_allowed_channels.assign(ch, ch + n);
+}
+
+void RF_RandomForest::cleanAllowedChannels()
+{
+    this->_allowed_channels.clear();
+}
+
+vector<int> RF_RandomForest::getAllowedChannels()
+{
+    return this->_allowed_channels;
+}
+
+

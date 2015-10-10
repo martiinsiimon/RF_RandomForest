@@ -21,6 +21,7 @@ RF_DataSample::RF_DataSample()
  */
 RF_DataSample::~RF_DataSample()
 {
+    this->_channel.clear();
 }
 
 /**
@@ -39,11 +40,13 @@ void RF_DataSample::setChannel(Mat m, int i)
  *
  * @param i Index of wanted channel in internal channel vector
  * @return Channel at given index
- * @todo Add check for channel existance to avoid possible exception
  */
 Mat RF_DataSample::getChannel(int i)
 {
-    return this->_channel[i];
+    if (this->_channel.count(i) == 1)
+        return this->_channel[i];
+    else
+        return Mat();
 }
 
 /**
@@ -135,13 +138,13 @@ RF_DataSample *RF_DataSample::getSubsample(int lx, int ly, int hx, int hy)
     /* Do the same with all the channels */
     for (map<int, Mat>::iterator it = this->_channel.begin(); it != this->_channel.end(); it++)
     {
-        if (it->first == T_CHANNEL_RGB)
+        if (it->first == T_CHANNEL_RGB || it->first == T_CHANNEL_HSV)
             continue;
 
         if (lx == hx && ly == hy)
         {
             /* Only one element matrix wanted */
-            if (it->first == T_CHANNEL_RGB)
+            if (it->first == T_CHANNEL_RGB || it->first == T_CHANNEL_HSV)
             {
                 ds->setChannel(Mat(it->second.at<Vec3b>(ly, lx)), it->first);
             } else
@@ -264,44 +267,28 @@ void RF_DataSample::createHSVChannel()
 
 /**
  * Generate hue channel from HSV image
- * @todo avoid exception, check index existence first
  * @todo add Mat size preallocation
  */
 void RF_DataSample::createHueChannel()
 {
     Mat channel[3];
 
-    try
-    {
-        split(this->_channel[T_CHANNEL_HSV], channel); //order HSV
-    } catch (Exception e)
-    {
-        this->createHSVChannel();
-        split(this->_channel[T_CHANNEL_HSV], channel); //order HSV
-    }
+    split(this->_channel[T_CHANNEL_HSV], channel); //order HSV
 
-    Mat ch(this->_channel[T_CHANNEL_RGB].rows, this->_channel[T_CHANNEL_RGB].cols, CV_8UC1);
+    Mat ch(this->_channel[T_CHANNEL_HSV].rows, this->_channel[T_CHANNEL_HSV].cols, CV_8UC1);
     channel[0].convertTo(ch, CV_8UC1);
     this->_channel[T_CHANNEL_H] = ch;
 }
 
 /**
  * Generate saturation channel from HSV image
- * @todo avoid exception, check index existence first
  * @todo add Mat size preallocation
  */
 void RF_DataSample::createSaturationChannel()
 {
     Mat channel[3];
 
-    try
-    {
-        split(this->_channel[T_CHANNEL_HSV], channel); //order HSV
-    } catch (Exception e)
-    {
-        this->createHSVChannel();
-        split(this->_channel[T_CHANNEL_HSV], channel); //order HSV
-    }
+    split(this->_channel[T_CHANNEL_HSV], channel); //order HSV
 
     Mat ch(this->_channel[T_CHANNEL_RGB].rows, this->_channel[T_CHANNEL_RGB].cols, CV_8UC1);
     channel[1].convertTo(ch, CV_8UC1);
@@ -353,6 +340,7 @@ void RF_DataSample::createLBPChannel()
             lbp.at<uchar>(y, x) = tmp;
         }
     }
+    this->_channel[T_CHANNEL_LBP] = lbp;
 }
 
 

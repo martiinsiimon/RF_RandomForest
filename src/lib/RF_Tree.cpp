@@ -148,13 +148,13 @@ void RF_Tree::train()
         return;
     }
 
-    //TODO add the check for divergency among classes
-
     RF_DataSampleCont * dsc = this->_dataset;
-
     this->leaf = false;
     int x = RF_REC_W / 2;
     int y = RF_REC_H / 2;
+
+    //TODO fix training with 5 random function generation
+    /* Generate random combinations of function type, channel and value(s) in the test function. For every combination generated, compute information */
 
     /* In every channel determine what's the maximal difference */
     int maximal = 0;

@@ -78,6 +78,7 @@ RF_DataSampleCont* RF_IO::readData()
 
         sample->setName(imgPath);
         sample->setChannel(imread(imgPath, CV_LOAD_IMAGE_COLOR), T_CHANNEL_RGB);
+        sample->generateChannel(T_CHANNEL_HSV);
         sample->setLabel(imread(labelPath, CV_LOAD_IMAGE_COLOR));
 
         cont->addSample(sample);
