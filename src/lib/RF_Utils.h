@@ -28,7 +28,9 @@ enum T_CHANNELS
     T_CHANNEL_HSV, // original image in HSV color model
     T_CHANNEL_H, // hue color channel (HSV)
     T_CHANNEL_S, // saturation color channel (HSV)
-    T_CHANNEL_LBP, // rotation invariant local binary pattern (8-neighbourhood)
+    T_CHANNEL_LBP, // original local binary pattern (8-neighbourhood)
+    T_CHANNEL_RILBP, // rotation invariant LBP (8-neighbourhood)
+    T_CHANNEL_RIULBP, // rotation invariant uniform LBP (8-neighbourhood)
     T_CHANNEL_SOBEL_H, // horizontal sobel filter response
     T_CHANNEL_SOBEL_V, // vertical sobel filter response
     T_CHANNEL_HOLBP21, // histogram of LBP 21x21

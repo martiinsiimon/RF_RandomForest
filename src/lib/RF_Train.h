@@ -35,8 +35,8 @@ private:
     int _maxDepth;
     int _maxTrees;
     int _n;
-    int _allowedChannels[7] = {T_CHANNEL_GRAY, T_CHANNEL_R, T_CHANNEL_G, T_CHANNEL_B, T_CHANNEL_H, T_CHANNEL_S, T_CHANNEL_LBP}; // TODO move to user definition
-    int _chanelsLen = 7;
+    int _allowedChannels[9] = {T_CHANNEL_GRAY, T_CHANNEL_R, T_CHANNEL_G, T_CHANNEL_B, T_CHANNEL_H, T_CHANNEL_S, T_CHANNEL_LBP, T_CHANNEL_RIULBP, T_CHANNEL_RILBP}; // TODO move to user definition
+    int _chanelsLen = 9;
 
     /* Other attributes */
     string _dataFile;

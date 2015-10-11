@@ -35,6 +35,8 @@ public:
     void createHueChannel();
     void createSaturationChannel();
     void createLBPChannel();
+    void createRILBPChannel();
+    void createRIULBPChannel();
     void createSobelHChannel();
     void createSobelVChannel();
     void createHOLBP7Channel();

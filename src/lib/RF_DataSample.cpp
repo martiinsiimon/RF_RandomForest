@@ -195,6 +195,9 @@ void RF_DataSample::generateChannel(int id)
         case T_CHANNEL_LBP:
             this->createLBPChannel();
             break;
+        case T_CHANNEL_RIULBP:
+            this->createRIULBPChannel();
+            break;
         default:
             return;
     }
@@ -298,58 +301,168 @@ void RF_DataSample::createSaturationChannel()
 
 /**
  * Generate LBP channel from grayscale image
- * @todo implement more efficiently and invariantly to rotation
  */
 void RF_DataSample::createLBPChannel()
 {
-    Mat lbp = Mat(this->_channel[T_CHANNEL_GRAY].rows, this->_channel[T_CHANNEL_GRAY].cols, CV_8U, 0.0);
+    Mat lbp(this->_channel[T_CHANNEL_GRAY].rows, this->_channel[T_CHANNEL_GRAY].cols, CV_8UC1, 0.0);
 
-    // Doplnte vypocet LBP pro kazdy pixel sedotonoveho obrazu greyImage a vysledek ulozte do lbp.
-    // Iplementujte zakladni verzi LBP na okoli 3x3 pixelu, ktera produkuje 8-bit kod.
-    // Popis zakladni verze LBP najdete napriklad v:
-    // Topi Maenpaa: THE LOCAL BINARY PATTERN APPROACH TO TEXTURE ANALYSIS  EXTENSIONS AND APPLICATIONS, http://herkules.oulu.fi/isbn9514270762/
-    // Look at page 26 - 2.5.1 The original LBP
+    uchar center;
+    uint ind_u, ind_c, ind_b;
+    uchar code;
+    uchar *data = this->_channel[T_CHANNEL_GRAY].data;
 
-    uchar threshold;
-    uchar tmp;
-    for (int y = 1; y < this->_channel[T_CHANNEL_GRAY].rows - 1; y++)
+    for (int r = 1; r < this->_channel[T_CHANNEL_GRAY].rows - 1; r++)
     {
-        for (int x = 1; x < this->_channel[T_CHANNEL_GRAY].cols - 1; x++)
+        ind_u = (uint) (this->_channel[T_CHANNEL_GRAY].step[0] * (r - 1));
+        ind_c = (uint) (this->_channel[T_CHANNEL_GRAY].step[0] * r);
+        ind_b = (uint) (this->_channel[T_CHANNEL_GRAY].step[0] * (r + 1));
+
+        for (int c = 1; c < this->_channel[T_CHANNEL_GRAY].cols - 1; c++)
         {
-            threshold = this->_channel[T_CHANNEL_GRAY].at<uchar>(y, x);
+            ind_u += this->_channel[T_CHANNEL_GRAY].step[1];
+            ind_c += this->_channel[T_CHANNEL_GRAY].step[1];
+            ind_b += this->_channel[T_CHANNEL_GRAY].step[1];
 
-            tmp = 0;
+            center = data[ind_c];
 
-            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y - 1, x - 1) >= threshold)
-                tmp += 128;
-            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y, x - 1) >= threshold)
-                tmp += 64;
-            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y + 1, x - 1) >= threshold)
-                tmp += 32;
-            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y - 1, x) >= threshold)
-                tmp += 16;
-            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y + 1, x) >= threshold)
-                tmp += 8;
-            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y - 1, x + 1) >= threshold)
-                tmp += 4;
-            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y, x + 1) >= threshold)
-                tmp += 2;
-            if (this->_channel[T_CHANNEL_GRAY].at<uchar>(y + 1, x + 1) >= threshold)
-                tmp += 1;
-
-            lbp.at<uchar>(y, x) = tmp;
+            code = 0;
+            code |= (data[ind_u - 1] > center) << 7;
+            code |= (data[ind_u] > center) << 6;
+            code |= (data[ind_u + 1] > center) << 5;
+            code |= (data[ind_c + 1] > center) << 4;
+            code |= (data[ind_b + 1] > center) << 3;
+            code |= (data[ind_b] > center) << 2;
+            code |= (data[ind_b - 1] > center) << 1;
+            code |= (data[ind_c - 1] > center) << 0;
+            lbp.data[ind_c] = code;
         }
     }
     this->_channel[T_CHANNEL_LBP] = lbp;
 }
 
+/**
+ * Generate LBP channel from grayscale image
+ * @todo implement invariantly to rotation method
+ */
+void RF_DataSample::createRILBPChannel()
+{
+    Mat rilbp(this->_channel[T_CHANNEL_GRAY].rows, this->_channel[T_CHANNEL_GRAY].cols, CV_8UC1, 0.0);
+
+    uchar center;
+    uint ind_u, ind_c, ind_b;
+    int shift, minimal;
+    uchar code, shifted_code;
+    uchar *data = this->_channel[T_CHANNEL_GRAY].data;
+
+    for (int r = 1; r < this->_channel[T_CHANNEL_GRAY].rows - 1; r++)
+    {
+        ind_u = (uint) (this->_channel[T_CHANNEL_GRAY].step[0] * (r - 1));
+        ind_c = (uint) (this->_channel[T_CHANNEL_GRAY].step[0] * r);
+        ind_b = (uint) (this->_channel[T_CHANNEL_GRAY].step[0] * (r + 1));
+
+        for (int c = 1; c < this->_channel[T_CHANNEL_GRAY].cols - 1; c++)
+        {
+            ind_u += this->_channel[T_CHANNEL_GRAY].step[1];
+            ind_c += this->_channel[T_CHANNEL_GRAY].step[1];
+            ind_b += this->_channel[T_CHANNEL_GRAY].step[1];
+
+            center = data[ind_c];
+
+            code = 0;
+            code |= (data[ind_u - 1] > center) << 7;
+            code |= (data[ind_u] > center) << 6;
+            code |= (data[ind_u + 1] > center) << 5;
+            code |= (data[ind_c + 1] > center) << 4;
+            code |= (data[ind_b + 1] > center) << 3;
+            code |= (data[ind_b] > center) << 2;
+            code |= (data[ind_b - 1] > center) << 1;
+            code |= (data[ind_c - 1] > center) << 0;
+
+            /* Shift until uniform pattern is reached or other */
+            shifted_code = code;
+            minimal = 255;
+            for (shift = 0; shift < 8; shift++)
+            {
+                shifted_code = (shifted_code << 1) | (shifted_code >> 7);
+                if (shifted_code < minimal)
+                {
+                    minimal = shifted_code;
+                }
+            }
+
+            rilbp.data[ind_c] = code;
+        }
+    }
+    this->_channel[T_CHANNEL_RILBP] = rilbp;
+}
+
+/**
+ * Generate LBP channel from grayscale image
+ */
+void RF_DataSample::createRIULBPChannel()
+{
+    Mat riulbp(this->_channel[T_CHANNEL_GRAY].rows, this->_channel[T_CHANNEL_GRAY].cols, CV_8UC1, 0.0);
+
+    uchar center;
+    uint ind_u, ind_c, ind_b;
+    int shift;
+    uchar code, shifted_code;
+    uchar *data = this->_channel[T_CHANNEL_GRAY].data;
+
+    for (int r = 1; r < this->_channel[T_CHANNEL_GRAY].rows - 1; r++)
+    {
+        ind_u = (uint) (this->_channel[T_CHANNEL_GRAY].step[0] * (r - 1));
+        ind_c = (uint) (this->_channel[T_CHANNEL_GRAY].step[0] * r);
+        ind_b = (uint) (this->_channel[T_CHANNEL_GRAY].step[0] * (r + 1));
+
+        for (int c = 1; c < this->_channel[T_CHANNEL_GRAY].cols - 1; c++)
+        {
+            ind_u += this->_channel[T_CHANNEL_GRAY].step[1];
+            ind_c += this->_channel[T_CHANNEL_GRAY].step[1];
+            ind_b += this->_channel[T_CHANNEL_GRAY].step[1];
+
+            center = data[ind_c];
+
+            code = 0;
+            code |= (data[ind_u - 1] > center) << 7;
+            code |= (data[ind_u] > center) << 6;
+            code |= (data[ind_u + 1] > center) << 5;
+            code |= (data[ind_c + 1] > center) << 4;
+            code |= (data[ind_b + 1] > center) << 3;
+            code |= (data[ind_b] > center) << 2;
+            code |= (data[ind_b - 1] > center) << 1;
+            code |= (data[ind_c - 1] > center) << 0;
+
+            /* Shift until uniform pattern is reached or other */
+            //TODO effectively shrink the space to 0-9
+            shifted_code = code;
+
+            for (shift = 0; shift < 8; shift++)
+            {
+                shifted_code = (shifted_code << 1) | (shifted_code >> 7);
+                if (shifted_code == 0 || shifted_code == 1 || shifted_code == 3 || shifted_code == 7 ||
+                    shifted_code == 15 || shifted_code == 31 || shifted_code == 63 || shifted_code == 127 ||
+                    shifted_code == 255)
+                {
+                    code = shifted_code;
+                    break;
+                }
+
+            }
+            if (shift == 9)
+                code = 170;
+            riulbp.data[ind_c] = code;
+        }
+    }
+    this->_channel[T_CHANNEL_RIULBP] = riulbp;
+}
 
 /**
  * Create Histogram of LBP in area 7x7 around every point
  */
 void RF_DataSample::createHOLBP7Channel()
 {
-return;
+    return;
 }
 
 
