@@ -5,6 +5,7 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <vector>
 #include "RF_DataProb.h"
 #include "RF_Utils.h"
 
@@ -27,18 +28,27 @@ RF_DataProb::~RF_DataProb()
 /**
  * Increase posterior probability for key given in argument
  *
- * @param i Key which should have posterior probability incresed
+ * @param i Key of probability record to be incresed
  */
 void RF_DataProb::increasePosteriori(uint i)
 {
-    try
-    {
-        this->probabilities[i] = this->probabilities.at(i) + 1;
-    }
-    catch (out_of_range)
-    {
-        this->probabilities.insert(pair<uint, float>(i, 1.0f));
-    }
+    if (this->probabilities.count(i) == 1)
+        this->probabilities[i] = this->probabilities[i] + 1;
+    else
+        this->probabilities[i] = 1.0f;
+}
+
+/**
+ * Return stored probability for given key
+ *
+ * @param i Key of probability record to return
+ */
+float RF_DataProb::getPosteriori(uint i)
+{
+    if (this->probabilities.count(i) == 1)
+        return this->probabilities[i];
+    else
+        return 0.0;
 }
 
 /**
@@ -99,7 +109,7 @@ string RF_DataProb::dumpProbabilities()
  */
 void RF_DataProb::addValue(uint key, float value)
 {
-    this->probabilities.insert(pair<uint, float>(key, value));
+    this->probabilities[key] = value;
 }
 
 /**
@@ -121,16 +131,10 @@ void RF_DataProb::sum(RF_DataProb* p)
     map<uint, float>::iterator it;
     for (it = p->probabilities.begin(); it != p->probabilities.end(); it++)
     {
-        try
-        {
-            /* Add value if key exists */
+        if (this->probabilities.count(it->first) == 1)
             this->probabilities[it->first] += it->second;
-        }
-        catch (out_of_range)
-        {
-            /* Insert new element if key doesn't exist */
-            this->probabilities.insert(pair<uint, float>(it->first, it->second));
-        }
+        else
+            this->probabilities[it->first] = it->second;
     }
 }
 
@@ -153,4 +157,18 @@ uint RF_DataProb::getMaximal()
         }
     }
     return max;
+}
+
+/**
+ * Return a vector of keys stored here
+ */
+vector<uint> RF_DataProb::getKeys()
+{
+    vector<uint> res;
+    map<uint, float>::iterator it;
+    for (it = this->probabilities.begin(); it != this->probabilities.end(); it++)
+    {
+        res.push_back(it->first);
+    }
+    return res;
 }

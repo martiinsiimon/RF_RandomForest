@@ -62,13 +62,13 @@ int RF_Tree::getId()
 
 string RF_Tree::dumpTree()
 {
-    queue<RF_Tree*> todo;
+    queue<RF_Tree *> todo;
     todo.push(this);
     string result = "";
 
     while (!todo.empty())
     {
-        RF_Tree* tmp = todo.front();
+        RF_Tree *tmp = todo.front();
         todo.pop();
 
         if (tmp->isLeaf())
@@ -78,8 +78,7 @@ string RF_Tree::dumpTree()
             result += "(:";
             result += tmp->getProbabilities()->dumpProbabilities();
             result += ") ";
-        }
-        else
+        } else
         {
             /* The node is a node */
             result += Number2String(tmp->getId());
@@ -108,12 +107,12 @@ void RF_Tree::setChannels(vector<int> c)
     this->_channels = c;
 }
 
-void RF_Tree::setDataset(RF_DataSampleCont * d)
+void RF_Tree::setDataset(RF_DataSampleCont *d)
 {
     this->_dataset = d;
 }
 
-RF_DataProb* RF_Tree::getProbabilities()
+RF_DataProb *RF_Tree::getProbabilities()
 {
     return this->probabilities;
 }
@@ -148,73 +147,53 @@ void RF_Tree::train()
         return;
     }
 
-    RF_DataSampleCont * dsc = this->_dataset;
+    RF_DataSampleCont *dsc = this->_dataset;
     this->leaf = false;
     int x = RF_REC_W / 2;
     int y = RF_REC_H / 2;
 
-    //TODO fix training with 5 random function generation
-    /* Generate random combinations of function type, channel and value(s) in the test function. For every combination generated, compute information */
-
-    /* In every channel determine what's the maximal difference */
-    int maximal = 0;
-    int minimal = 255;
-    int maxLen = 0;
-    int maxCh = -1;
-
-    for (uint ch = 0; ch < this->_channels.size(); ch++)
+    /* Generate random combinations of function type, channel and value(s) in the test function. For every combination
+     * generated, compute information */
+    RF_NodeFunc *nf[5];
+    float informationGain;
+    float highestGain = 0.0;
+    int highestIndex = 0;
+    for (int i = 0; i < 5; i++)
     {
-        int tmpMax = 0;
-        int tmpMin = 0;
+        nf[i] = new RF_NodeFunc();
+        nf[i]->setType(rand() % ((uint) RF_FUNC_END));
+        nf[i]->setChannel(this->_channels[rand() % ((uint) this->_channels.size())]);
+        //TODO set threshold from min-max interval to avoid meaningless evaluation
+        nf[i]->setThreshold(rand() % 255 + 1);
+        informationGain = nf[i]->computeInformationGain(dsc);
 
-        for (uint i = 0; i < dsc->samplesCount(); i++)
+        if (informationGain > highestGain)
         {
-            Mat tmpSample = dsc->getSample(i)->getChannel(this->_channels.at(ch));
-
-            if ((int) tmpSample.at<uchar>(y, x) > tmpMax)
-                tmpMax = (int) tmpSample.at<uchar>(y, x);
-            if ((int) tmpSample.at<uchar>(y, x) < tmpMin)
-                tmpMin = (int) tmpSample.at<uchar>(y, x);
-        }
-
-        if (tmpMax - tmpMin >= maxLen)
-        {
-            maxLen = tmpMax - tmpMin;
-            maxCh = ch;
-            minimal = tmpMin;
-            maximal = tmpMax;
+            highestGain = informationGain;
+            highestIndex = i;
         }
     }
-    if (maxCh == -1)
+
+    for (int i = 0; i < 5; i++)
     {
-        cerr << "no maximal channel" << endl;
-        return;
+        if (i != highestIndex)
+            delete nf[i];
     }
 
-    /* Store found threshold and channel */
-    int threshold = ((maximal - minimal) / 2) + minimal;
-    int channel = this->_channels.at((uint)maxCh);
-
-    this->func = new RF_NodeFunc();
-    this->func->setType(RF_FUNC_ABSTEST);
-    this->func->setChannel(channel);
-    this->func->setThreshold(threshold);
+    this->func = nf[highestIndex];
 
     /* Split the dataset according to maximal divergency in corect channel */
-    RF_DataSampleCont* rightDSC = new RF_DataSampleCont();
-    RF_DataSampleCont* leftDSC = new RF_DataSampleCont();
+    RF_DataSampleCont *rightDSC = new RF_DataSampleCont();
+    RF_DataSampleCont *leftDSC = new RF_DataSampleCont();
+    Mat tmpSample;
 
     for (uint i = 0; i < dsc->samplesCount(); i++)
     {
-        Mat tmpSample = dsc->getSample(i)->getChannel(channel);
-        if ((int) tmpSample.at<uchar>(y, x) < threshold)
-        {
+        tmpSample = dsc->getSample(i)->getChannel(this->func->getChannel());
+        if ((int) tmpSample.at<uchar>(y, x) < this->func->getThreshold())
             leftDSC->addSample(dsc->getSample(i));
-        }
         else
-        {
             rightDSC->addSample(dsc->getSample(i));
-        }
     }
 
     /* Initialize both sub-trees */
@@ -240,8 +219,8 @@ void RF_Tree::generatePosteriori()
 
     for (uint i = 0; i < this->_dataset->samplesCount(); i++)
     {
-        RF_DataSample* ds = this->_dataset->getSample(i);
-        RF_Tree * tree = this;
+        RF_DataSample *ds = this->_dataset->getSample(i);
+        RF_Tree *tree = this;
 
         /* Go through the whole tree */
         while (!tree->isLeaf())
@@ -249,8 +228,7 @@ void RF_Tree::generatePosteriori()
             if ((int) ds->getChannel(tree->func->getChannel()).at<uchar>(y, x) < tree->func->getThreshold())
             {
                 tree = tree->tLeft;
-            }
-            else
+            } else
             {
                 tree = tree->tRight;
             }
@@ -262,12 +240,12 @@ void RF_Tree::generatePosteriori()
     }
 }
 
-RF_Tree* RF_Tree::getLeft()
+RF_Tree *RF_Tree::getLeft()
 {
     return this->tLeft;
 }
 
-RF_Tree* RF_Tree::getRight()
+RF_Tree *RF_Tree::getRight()
 {
     return this->tRight;
 }
@@ -277,22 +255,21 @@ void RF_Tree::normalizeProbs()
     this->probabilities->normalize();
 }
 
-RF_NodeFunc* RF_Tree::getFunc()
+RF_NodeFunc *RF_Tree::getFunc()
 {
     return this->func;
 }
 
-RF_DataProb* RF_Tree::solveTree(RF_DataSample *ds)
+RF_DataProb *RF_Tree::solveTree(RF_DataSample *ds)
 {
-    RF_Tree * tree = this;
+    RF_Tree *tree = this;
     while (!tree->isLeaf())
     {
         if ((int) ds->getChannel(tree->getFunc()->getChannel()).at<uchar>(0, 0) < tree->getFunc()->getThreshold())
         {
             //left
             tree = tree->tLeft;
-        }
-        else
+        } else
         {
             //right
             tree = tree->tRight;
@@ -301,15 +278,15 @@ RF_DataProb* RF_Tree::solveTree(RF_DataSample *ds)
     return tree->getProbabilities();
 }
 
-void RF_Tree::addSubtree(bool leaf, int id, int left, int right, RF_NodeFunc *f, RF_DataProb* p)
+void RF_Tree::addSubtree(bool leaf, int id, int left, int right, RF_NodeFunc *f, RF_DataProb *p)
 {
-    queue<RF_Tree*> todo;
+    queue<RF_Tree *> todo;
 
     todo.push(this);
 
     while (!todo.empty())
     {
-        RF_Tree* tmp = todo.front();
+        RF_Tree *tmp = todo.front();
         todo.pop();
 
         if (tmp->getId() == id)
@@ -318,14 +295,12 @@ void RF_Tree::addSubtree(bool leaf, int id, int left, int right, RF_NodeFunc *f,
             {
                 tmp->addLeaf(p);
                 return;
-            }
-            else
+            } else
             {
                 tmp->addNode(left, right, f);
                 return;
             }
-        }
-        else
+        } else
         {
             if (tmp->tLeft != NULL)
                 todo.push(tmp->tLeft);
@@ -335,7 +310,7 @@ void RF_Tree::addSubtree(bool leaf, int id, int left, int right, RF_NodeFunc *f,
     }
 }
 
-void RF_Tree::addNode(int left, int right, RF_NodeFunc* f)
+void RF_Tree::addNode(int left, int right, RF_NodeFunc *f)
 {
     this->leaf = false;
     this->tLeft = new RF_Tree();
@@ -345,7 +320,7 @@ void RF_Tree::addNode(int left, int right, RF_NodeFunc* f)
     this->func = f;
 }
 
-void RF_Tree::addLeaf(RF_DataProb* p)
+void RF_Tree::addLeaf(RF_DataProb *p)
 {
     this->leaf = true;
     this->tLeft = NULL;

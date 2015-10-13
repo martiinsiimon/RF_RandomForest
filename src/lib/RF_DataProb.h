@@ -27,6 +27,7 @@ public:
     void addValue(uint key, float val);
     void clear();
     void sum(RF_DataProb * p);
+    vector<uint> getKeys();
 private:
 
     map<uint, float> probabilities;
